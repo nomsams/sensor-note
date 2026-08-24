@@ -21,6 +21,7 @@ import org.havenapp.main.database.async.EventTriggerDeleteAsync;
 import org.havenapp.main.database.async.EventTriggerInsertAsync;
 import org.havenapp.main.model.Event;
 import org.havenapp.main.model.EventTrigger;
+import org.havenapp.main.PreferenceManager;
 import org.havenapp.main.resources.IResourceManager;
 import org.havenapp.main.resources.ResourceManager;
 import org.jetbrains.annotations.NotNull;
@@ -134,8 +135,9 @@ public class EventActivity extends AppCompatActivity implements EventTriggerAdap
     private void setUpRecyclerView() {
         mRecyclerView = findViewById(R.id.event_trigger_list);
 
+        PreferenceManager preferences = new PreferenceManager(this);
         mAdapter = new EventTriggerAdapter(this, eventTriggerList,
-                resourceManager, this);
+                resourceManager, preferences.getAudioSpectrogramEnabled(), this);
 
         LinearLayoutManager llm = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(llm);

@@ -29,18 +29,29 @@ public class EventTriggerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private List<EventTrigger> eventTriggers;
 
     private EventTriggerClickListener eventTriggerClickListener;
+    private boolean audioSpectrogramEnabled;
 
     EventTriggerAdapter(Context context, @NonNull List<EventTrigger> eventTriggers,
-                        IResourceManager resourceManager, EventTriggerClickListener eventTriggerClickListener) {
+                        IResourceManager resourceManager,
+                        boolean audioSpectrogramEnabled,
+                        EventTriggerClickListener eventTriggerClickListener) {
         this.context = context;
         this.resourceManager = resourceManager;
         this.eventTriggers = eventTriggers;
         this.eventTriggerClickListener = eventTriggerClickListener;
+        this.audioSpectrogramEnabled = audioSpectrogramEnabled;
     }
 
     void setEventTriggers(@NonNull List<EventTrigger> eventTriggers) {
         this.eventTriggers = eventTriggers;
         notifyDataSetChanged();
+    }
+
+    void setAudioSpectrogramEnabled(boolean enabled) {
+        if (audioSpectrogramEnabled != enabled) {
+            audioSpectrogramEnabled = enabled;
+            notifyDataSetChanged();
+        }
     }
 
     @NonNull
@@ -53,12 +64,13 @@ public class EventTriggerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             case EventTrigger.CAMERA:
                 return new ImageVH(resourceManager, eventTriggerClickListener, parent);
             case EventTrigger.MICROPHONE:
-                return new AudioVH(resourceManager, parent);
+                return new AudioVH(resourceManager, parent, audioSpectrogramEnabled);
             case EventTrigger.ACCELEROMETER:
             case EventTrigger.LIGHT:
             case EventTrigger.PRESSURE:
             case EventTrigger.POWER:
             case EventTrigger.BUMP:
+            case EventTrigger.EMF:
                 return new EventTriggerVH(resourceManager, parent);
         }
         return new RecyclerView.ViewHolder(new View(context)) {};
@@ -94,6 +106,10 @@ public class EventTriggerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     ((EventTriggerVH) holder)
                             .bind(eventTrigger, resourceManager.getString(R.string.data_pressure), position);
                     break;
+                case EventTrigger.EMF:
+                    ((EventTriggerVH) holder)
+                            .bind(eventTrigger, resourceManager.getString(R.string.magnetic_field_threshold_summary), position);
+                    break;
                 case EventTrigger.POWER:
                     ((EventTriggerVH) holder)
                             .bind(eventTrigger, resourceManager.getString(R.string.data_power), position);
@@ -107,6 +123,15 @@ public class EventTriggerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         super.onDetachedFromRecyclerView(recyclerView);
 
         AudioWife.getInstance().release();
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+        super.onViewRecycled(holder);
+        if (holder instanceof AudioVH) {
+            ((AudioVH) holder).cancelLoad();
+            ((AudioVH) holder).release();
+        }
     }
 
     @Override

@@ -3,6 +3,7 @@ package org.havenapp.main.dao
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import org.havenapp.main.model.EventTrigger
+import java.util.Date
 
 /**
  * Created by Arka Prava Basu <arkaprava94@gmail.com> on 23/5/18.
@@ -33,6 +34,9 @@ interface EventTriggerDAO {
 
     @Query("SELECT * FROM EVENT_TRIGGER")
     fun getAllEventTriggers() : MutableList<EventTrigger>
+
+    @Query("SELECT * FROM EVENT_TRIGGER WHERE M_TIME >= :startTime AND M_TIME <= :endTime ORDER BY M_TIME ASC")
+    fun getEventTriggersBetween(startTime: Date, endTime: Date) : MutableList<EventTrigger>
 
     @Query("SELECT COUNT(*) FROM EVENT_TRIGGER WHERE M_EVENT_ID = :eventId")
     fun getEventTriggerListCountAsync(eventId: Long?) : LiveData<Int>

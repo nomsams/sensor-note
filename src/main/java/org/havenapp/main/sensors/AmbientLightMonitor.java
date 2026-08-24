@@ -71,7 +71,7 @@ public class AmbientLightMonitor implements SensorEventListener {
         sensor = (Sensor) sensorMgr.getDefaultSensor(Sensor.TYPE_LIGHT);
 
         if (sensor == null) {
-            Log.i("AccelerometerFrament", "Warning: no accelerometer");
+            Log.i("AmbientLightMonitor", "Warning: no light sensor");
         } else {
             sensorMgr.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
         }
@@ -85,7 +85,7 @@ public class AmbientLightMonitor implements SensorEventListener {
 
     public void onSensorChanged(SensorEvent event) {
         long curTime = System.currentTimeMillis();
-        // only allow one update every 100ms.
+        // only allow one update every 1000ms (1 second).
         if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
             if ((curTime - lastUpdate) > CHECK_INTERVAL) {
                 long diffTime = (curTime - lastUpdate);
@@ -149,13 +149,13 @@ public class AmbientLightMonitor implements SensorEventListener {
 
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
-            Log.i("AccelerometerFragment", "SERVICE CONNECTED");
+            Log.i("AmbientLightMonitor", "SERVICE CONNECTED");
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             serviceMessenger = new Messenger(service);
         }
 
         public void onServiceDisconnected(ComponentName arg0) {
-            Log.i("AccelerometerFragment", "SERVICE DISCONNECTED");
+            Log.i("AmbientLightMonitor", "SERVICE DISCONNECTED");
             serviceMessenger = null;
         }
     };

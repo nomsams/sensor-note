@@ -31,7 +31,7 @@
     <string name="accelerometer_prompt">Wrażliwość na ruch</string>
     <string name="title_activity_start">Haven</string>
     <string name="menu_about">Skonfiguruj</string>
-    <string name="hearbeat_monitor">Monitor pulsu Haven</string>
+    <string name="heartbeat_monitor">Monitor pulsu Haven</string>
     <string name="events_deleted">Zdarzenia usunięte</string>
     <string name="remove_all_logs">Usuń wszystkie logi</string>
     <string name="undo">Cofnij</string>

@@ -11,6 +11,8 @@ import org.havenapp.main.database.HavenEventDB;
 import org.havenapp.main.model.Event;
 import org.havenapp.main.model.EventTrigger;
 import org.havenapp.main.resources.ResourceManager;
+import org.havenapp.main.PreferenceManager;
+import android.os.Environment;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,6 +26,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.Arrays;
 
 import fi.iki.elonen.NanoHTTPD;
 
@@ -100,8 +103,35 @@ public class WebServer extends NanoHTTPD {
             EventTrigger eventTrigger = HavenEventDB.getDatabase(mContext).getEventTriggerDAO()
                     .findById(eventTriggerId);
 
+            if (eventTrigger == null || eventTrigger.getPath() == null) {
+                  Log.e(TAG, "Event trigger or path is null");
+                  return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "Media not found");
+            }
+
             try {
-                File fileMedia = new File(Objects.requireNonNull(eventTrigger.getPath()));
+                String mediaPath = eventTrigger.getPath();
+                File fileMedia = new File(mediaPath);
+                File externalStorage = Environment.getExternalStorageDirectory();
+                List<File> allowedRoots = Arrays.asList(
+                        new File(externalStorage, new PreferenceManager(mContext).getBaseStoragePath()),
+                        mContext.getExternalFilesDir(null));
+                try {
+                    String mediaCanonicalPath = fileMedia.getCanonicalPath();
+                    boolean isAllowed = false;
+                    for (File root : allowedRoots) {
+                        if (root != null && mediaCanonicalPath.startsWith(root.getCanonicalPath() + File.separator)) {
+                            isAllowed = true;
+                            break;
+                        }
+                    }
+                    if (!isAllowed) {
+                        Log.e(TAG, "Path traversal attempt: " + mediaPath);
+                        return newFixedLengthResponse(Response.Status.FORBIDDEN, "text/plain", "Access denied");
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG, "Error validating path", e);
+                    return newFixedLengthResponse(Response.Status.FORBIDDEN, "text/plain", "Access denied");
+                }
                 FileInputStream fis = new FileInputStream(fileMedia);
                 return newChunkedResponse(Response.Status.OK, getMimeType(eventTrigger), fis);
 
@@ -132,6 +162,11 @@ public class WebServer extends NanoHTTPD {
                         long eventId = Long.parseLong(pathSegs.get(1));
                         Event event = HavenEventDB.getDatabase(mContext)
                                 .getEventDAO().findById(eventId);
+                        if (event == null) {
+                            Log.e(TAG, "Event not found for id: " + eventId);
+                            return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "Event not found");
+                        }
+
                         showEvent(event, page);
 
                     }
@@ -216,10 +251,11 @@ public class WebServer extends NanoHTTPD {
 
         List<Event> events = HavenEventDB.getDatabase(mContext).getEventDAO().getAllEvent();
 
-        for (Event event: events)
-        {
+        for (Event event : events) {
             String title = event.getStartTime().toLocaleString();
-            String desc = event.getEventTriggers().size() + " triggered events";
+            int triggerCount = HavenEventDB.getDatabase(mContext).getEventTriggerDAO()
+                    .getEventTriggerList(event.getId()).size();
+            String desc = triggerCount + " triggered events";
 
             page.append("<b>").append("<a href=\"/event/").append(event.getId()).append("\">");
             page.append(title).append("</a></b><br/>");
@@ -233,7 +269,9 @@ public class WebServer extends NanoHTTPD {
     {
         String sType = "";
 
-        switch (eventTrigger.getType()) {
+            int triggerType = eventTrigger.getType() == null ? -1 : eventTrigger.getType();
+
+            switch (triggerType) {
             case EventTrigger.CAMERA:
                 sType = "image/jpeg";
                 break;

@@ -34,13 +34,39 @@
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/main_list"
+    <FrameLayout
+        android:id="@+id/content_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
-        tools:listitem="@layout/item_event" />
+        android:visibility="visible">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/main_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            tools:listitem="@layout/item_event" />
+
+        <TextView
+            android:id="@+id/timeline_empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/no_events_for_period"
+            android:textColor="@color/secondary_text"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/timeline_details"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="#CC101010"
+            android:maxLines="10"
+            android:padding="12dp"
+            android:textColor="@android:color/white" />
+    </FrameLayout>
 
     <ImageView
         android:id="@+id/empty_view"
@@ -60,5 +86,17 @@
         android:tint="@android:color/white"
         app:fabSize="normal"
         app:srcCompat="@drawable/ic_play_arrow" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_timeline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="@dimen/fab_margin"
+        app:backgroundTint="@color/colorPrimaryDark"
+        app:tint="@android:color/white"
+        android:tint="@android:color/white"
+        app:fabSize="mini"
+        app:srcCompat="@android:drawable/ic_menu_mylocation" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

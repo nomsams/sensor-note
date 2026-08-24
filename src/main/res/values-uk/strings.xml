@@ -40,9 +40,9 @@
     <string name="register_signal_desc">Введіть номер телефону, щоб зареєструватися в Signal для використовування надсилання безпечних сповіщень. Ви можете використовувати номер телефону цього пристрою або налаштувати віртуальний номер.
 \n 
 \nПОПЕРЕДЖЕННЯ. Якщо цей номер вже поєднаний з установкою застосунку Signal, він припинить свою роботу там і працюватиме лише в Haven.</string>
-    <string name="hearbeat_monitor">Відстежувач серцебиття Haven</string>
+    <string name="heartbeat_monitor">Відстежувач серцебиття Haven</string>
     <string name="heartbeat_time_dialog">Введіть час (у хвилинах), щоб надіслати % батареї та образок серця з одним знаком. Попередження припиняються, коли Haven з будь-якої причини припиняє відстежування.</string>
-    <string name="hearbeat_monitor_initial_message_2">хвилин(и) Haven діє та відстежує.</string>
+    <string name="heartbeat_monitor_initial_message_2">хвилин(и) Haven діє та відстежує.</string>
     <string name="signal_verification_success_desc">Все готово, щоб надсилати повідомлення Haven від Signal!</string>
     <string name="current_accel_base">Поточний рівень руху становить</string>
     <string name="configure_trigger_level">Пересуньте, щоб встановити поріг виявлення</string>
@@ -121,14 +121,14 @@
     <string name="undo">НАЗАД</string>
     <string name="remove_all_logs">Видалити всі часописи</string>
     <string name="events_deleted">Події видалено</string>
-    <string name="hearbeat_monitor_enable">Увімкнути сповіщення про серцебиття</string>
-    <string name="hearbeat_monitor_summary">Проиіжковість перевірки</string>
-    <string name="hearbeat_monitor_dialog">Налаштування затримки між сповіщеннями</string>
-    <string name="hearbeat_message_dialog">Налаштуйте повідомлення про серцебиття. Залишайте порожнім, щоб використовувати усталений образок серця.</string>
-    <string name="hearbeat_message_title">Попереджувальне повідомлення</string>
-    <string name="hearbeat_message_summary">Встановити власний текст повідомлення</string>
-    <string name="hearbeat_message_summary_on">Увімкнено власні сповіщення</string>
-    <string name="hearbeat_monitor_initial_message_1">Активується монітор серцебиття: Ви отримуватимете сповіщення кожного</string>
+    <string name="heartbeat_monitor_enable">Увімкнути сповіщення про серцебиття</string>
+    <string name="heartbeat_monitor_summary">Проиіжковість перевірки</string>
+    <string name="heartbeat_monitor_dialog">Налаштування затримки між сповіщеннями</string>
+    <string name="heartbeat_message_dialog">Налаштуйте повідомлення про серцебиття. Залишайте порожнім, щоб використовувати усталений образок серця.</string>
+    <string name="heartbeat_message_title">Попереджувальне повідомлення</string>
+    <string name="heartbeat_message_summary">Встановити власний текст повідомлення</string>
+    <string name="heartbeat_message_summary_on">Увімкнено власні сповіщення</string>
+    <string name="heartbeat_monitor_initial_message_1">Активується монітор серцебиття: Ви отримуватимете сповіщення кожного</string>
     <string name="battery_level_msg_text">Рівень заряду акумулятора</string>
     <string name="title_activity_video_player">ДійністьВідеоПрогравача</string>
     <string name="config_storage_path">Шлях до теки для зберігання</string>

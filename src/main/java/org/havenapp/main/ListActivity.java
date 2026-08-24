@@ -31,6 +31,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
@@ -57,13 +59,22 @@ import org.havenapp.main.database.async.EventDeleteAsync;
 import org.havenapp.main.database.async.EventInsertAllAsync;
 import org.havenapp.main.database.async.EventInsertAsync;
 import org.havenapp.main.model.Event;
+import org.havenapp.main.model.EventTrigger;
 import org.havenapp.main.resources.IResourceManager;
 import org.havenapp.main.resources.ResourceManager;
 import org.havenapp.main.service.RemoveDeletedFilesJob;
 import org.havenapp.main.service.SignalSender;
+import org.havenapp.main.service.TelegramSender;
 import org.havenapp.main.ui.EventActivity;
 import org.havenapp.main.ui.EventAdapter;
+import org.havenapp.main.ui.TimelineView;
 import org.havenapp.main.ui.PPAppIntro;
+
+import android.widget.FrameLayout;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,6 +96,8 @@ public class ListActivity extends AppCompatActivity {
     private final static int REQUEST_CODE_INTRO = 1001;
 
     private LiveData<List<Event>> eventListLD;
+    private boolean timelineMode = false;
+    private TimelineView timelineView;
 
     private Observer<List<Event>> eventListObserver = events -> {
         if (events != null) {
@@ -144,6 +157,12 @@ public class ListActivity extends AppCompatActivity {
         resourceManager = new ResourceManager(this);
         preferences = new PreferenceManager(this.getApplicationContext());
         recyclerView = findViewById(R.id.main_list);
+        timelineView = new TimelineView(this);
+        FrameLayout contentContainer = findViewById(R.id.content_container);
+        contentContainer.addView(timelineView, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                getResources().getDimensionPixelSize(R.dimen.appbar_height) / 2));
+        timelineView.setVisibility(View.GONE);
         FloatingActionButton fab = findViewById(R.id.fab);
         Toolbar toolbar = findViewById(R.id.toolbar);
         final Drawable overflowIcon = toolbar.getOverflowIcon();
@@ -197,6 +216,35 @@ public class ListActivity extends AppCompatActivity {
             startActivity(i);
         });
 
+        FloatingActionButton timelineFab = findViewById(R.id.fab_timeline);
+        timelineFab.setOnClickListener(v -> {
+            timelineMode = !timelineMode;
+            recyclerView.setVisibility(timelineMode ? View.GONE : View.VISIBLE);
+            timelineView.setVisibility(timelineMode ? View.VISIBLE : View.GONE);
+            if (timelineMode) {
+                loadTimeline(Calendar.getInstance(), 7);
+            } else {
+                fetchEventList();
+            }
+        });
+
+        GestureDetector detector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override public boolean onScroll(MotionEvent down, MotionEvent move,
+                                              float distanceX, float distanceY) {
+                timelineView.scrollByFraction(distanceX / Math.max(timelineView.getWidth(), 1));
+                return true;
+            }
+
+            @Override public boolean onSingleTapConfirmed(MotionEvent event) {
+                Toast.makeText(ListActivity.this,
+                        timelineView.toggleSummaryMode() ? R.string.timeline_summary_mode : R.string.timeline_event_mode,
+                        Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+        timelineView.setOnTouchListener((view, motionEvent) -> detector.onTouchEvent(motionEvent));
+        timelineView.onSelectionChanged = (time, nearby) -> showTimelineDetails(time, nearby);
+
         if (preferences.isFirstLaunch()) {
             showOnboarding();
         }
@@ -242,6 +290,7 @@ public class ListActivity extends AppCompatActivity {
 
     private void fetchEventList() {
         try {
+            eventListLD.removeObservers(this);
             eventListLD = HavenEventDB.getDatabase(this).getEventDAO().getAllEventDesc();
             eventListLD.observe(this, eventListObserver);
         } catch (SQLiteException sqe) {
@@ -323,6 +372,12 @@ public class ListActivity extends AppCompatActivity {
             case R.id.action_test_notification:
                 testNotifications();
                 break;
+            case R.id.action_timeline:
+                timelineMode = true;
+                recyclerView.setVisibility(View.GONE);
+                timelineView.setVisibility(View.VISIBLE);
+                loadTimeline(Calendar.getInstance(), 7);
+                break;
             case R.id.action_run_cleanup_job:
                 runCleanUpJob();
                 break;
@@ -374,14 +429,40 @@ public class ListActivity extends AppCompatActivity {
     private void testNotifications ()
     {
 
-        if (preferences.isSignalVerified()) {
+        if (preferences.isRemoteNotificationActive()) {
             SignalSender sender = SignalSender.getInstance(this, preferences.getSignalUsername().trim());
             ArrayList<String> recip = new ArrayList<>();
             recip.add(preferences.getRemotePhoneNumber());
             sender.sendMessage(recip, resourceManager.getString(R.string.signal_test_message),
                     null, null);
+        } else if (preferences.isTelegramConfigured()) {
+            TelegramSender.sendMessage(this, resourceManager.getString(R.string.signal_test_message), null);
         } else {
             Toast.makeText(this, getString(R.string.setup_signal_toast), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void loadTimeline(Calendar center, int days) {
+        Calendar end = (Calendar) center.clone();
+        end.add(Calendar.DAY_OF_YEAR, days / 2);
+        Calendar start = (Calendar) center.clone();
+        start.add(Calendar.DAY_OF_YEAR, -days);
+        List<EventTrigger> triggers = HavenEventDB.getDatabase(this)
+                .getEventTriggerDAO().getEventTriggersBetween(start.getTime(), end.getTime());
+        timelineView.setEvents(triggers);
+    }
+
+    private void showTimelineDetails(Date time, List<EventTrigger> nearby) {
+        if (!timelineMode) return;
+        StringBuilder details = new StringBuilder()
+                .append(new SimpleDateFormat("MMM d HH:mm:ss", Locale.getDefault()).format(time))
+                .append("\n").append(nearby.size()).append(' ')
+                .append(resourceManager.getString(R.string.detection_events));
+        for (EventTrigger trigger : nearby.subList(0, Math.min(nearby.size(), 8))) {
+            details.append("\n• ").append(trigger.getStringType(resourceManager)).append(" @ ")
+                    .append(new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(trigger.getTime()));
+        }
+        TextView detailsView = findViewById(R.id.timeline_details);
+        detailsView.setText(details.toString());
     }
 }

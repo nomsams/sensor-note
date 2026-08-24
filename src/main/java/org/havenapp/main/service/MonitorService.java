@@ -34,6 +34,10 @@ import org.havenapp.main.HavenApp;
 import org.havenapp.main.MonitorActivity;
 import org.havenapp.main.PreferenceManager;
 import org.havenapp.main.R;
+import org.havenapp.main.anomaly.AnomalyCalibrator;
+import org.havenapp.main.anomaly.HotellingPcaModel;
+import org.havenapp.main.anomaly.RuntimeLogStore;
+import org.havenapp.main.anomaly.SensorFeatureWindow;
 import org.havenapp.main.database.HavenEventDB;
 import org.havenapp.main.model.Event;
 import org.havenapp.main.model.EventTrigger;
@@ -42,9 +46,11 @@ import org.havenapp.main.sensors.AccelerometerMonitor;
 import org.havenapp.main.sensors.AmbientLightMonitor;
 import org.havenapp.main.sensors.BarometerMonitor;
 import org.havenapp.main.sensors.BumpMonitor;
+import org.havenapp.main.sensors.EmfMonitor;
 import org.havenapp.main.sensors.MicrophoneMonitor;
 import org.havenapp.main.sensors.PowerConnectionReceiver;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.StringTokenizer;
@@ -80,8 +86,15 @@ public class MonitorService extends Service {
     private MicrophoneMonitor mMicMonitor = null;
     private BarometerMonitor mBaroMonitor = null;
     private AmbientLightMonitor mLightMonitor = null;
+    private EmfMonitor mEmfMonitor = null;
 
     private PowerConnectionReceiver mPowerReceiver = null;
+    private final SensorFusion sensorFusion = new SensorFusion();
+    private final SensorFeatureWindow featureWindow = new SensorFeatureWindow(4);
+    private final AnomalyCalibrator anomalyCalibrator = new AnomalyCalibrator(featureWindow.names);
+    private HotellingPcaModel anomalyModel = null;
+    private org.havenapp.main.anomaly.AnomalyPoint latestAnomalyPoint;
+    private HotellingPcaModel.InferenceResult anomalyResult;
 
     private boolean mIsMonitoringActive = false;
 
@@ -103,7 +116,7 @@ public class MonitorService extends Service {
 		public void handleMessage(Message msg) {
 
 		    //only accept alert if monitor is running
-		    if (mIsMonitoringActive)
+        if (mIsMonitoringActive)
 		        alert(msg.what,msg.getData().getString(KEY_PATH));
 		}
 	}
@@ -139,6 +152,7 @@ public class MonitorService extends Service {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             setupNotificationChannel();
+            startForeground(1, buildNotification());
         }
 
         startSensors();
@@ -148,10 +162,19 @@ public class MonitorService extends Service {
       //  startCamera();
 
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK,
+        if (wakeLock == null || !wakeLock.isHeld()) {
+            wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK,
                 "haven:MyWakelockTag");
-        wakeLock.acquire();
+            wakeLock.acquire();
+        }
     }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        // Handle service restart
+        return START_STICKY;
+    }
+
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void setupNotificationChannel ()
@@ -159,10 +182,16 @@ public class MonitorService extends Service {
         android.app.NotificationManager manager = (android.app.NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         android.app.NotificationChannel channel;
         channel = new android.app.NotificationChannel(channelId, channelName,
-                android.app.NotificationManager.IMPORTANCE_HIGH);
+                android.app.NotificationManager.IMPORTANCE_HIGH); // Fixed: removed duplicate IMPORTANCE_MIN
         channel.setDescription(channelDescription);
         channel.setLightColor(Color.RED);
-        channel.setImportance(android.app.NotificationManager.IMPORTANCE_MIN);
+        if (mPrefs != null && mPrefs.getSilentOperations()) {
+            channel.setImportance(android.app.NotificationManager.IMPORTANCE_MIN);
+            channel.setSound(null, null);
+            channel.enableVibration(false);
+            channel.enableLights(false);
+        }
+        // channel.setImportance(android.app.NotificationManager.IMPORTANCE_MIN); // BUG FIX: This was overriding IMPORTANCE_HIGH
         manager.createNotificationChannel(channel);
     }
 
@@ -178,7 +207,9 @@ public class MonitorService extends Service {
     @Override
     public void onDestroy() {
 
-        wakeLock.release();
+        if (wakeLock != null && wakeLock.isHeld()) {
+            wakeLock.release();
+        }
         stopSensors();
 		stopForeground(true);
 
@@ -197,38 +228,41 @@ public class MonitorService extends Service {
      * Show a notification while this service is running.
      */
     private void showNotification() {
-
-    	Intent toLaunch = new Intent(getApplicationContext(),
-    	                                          MonitorActivity.class);
-
-        toLaunch.setAction(Intent.ACTION_MAIN);
-        toLaunch.addCategory(Intent.CATEGORY_LAUNCHER);
-        toLaunch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        PendingIntent resultPendingIntent =
-                PendingIntent.getActivity(
-                        this,
-                        0,
-                        toLaunch,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
-
-        // In this sample, we'll use the same text for the ticker and the expanded notification
         CharSequence text = getText(R.string.secure_service_started);
-
-		NotificationCompat.Builder mBuilder =
-				new NotificationCompat.Builder(this, channelId)
-						.setSmallIcon(R.drawable.ic_stat_haven)
-						.setContentTitle(getString(R.string.app_name))
-						.setContentText(text);
-
-		mBuilder.setPriority(NotificationCompat.PRIORITY_MIN);
-        mBuilder.setContentIntent(resultPendingIntent);
-        mBuilder.setWhen(System.currentTimeMillis());
-        mBuilder.setVisibility(NotificationCompat.VISIBILITY_SECRET);
-
+        NotificationCompat.Builder mBuilder =
+                notificationBuilder(text).setSilent(mPrefs.getSilentOperations());
 		startForeground(1, mBuilder.build());
 
+    }
+
+    private NotificationCompat.Builder notificationBuilder(CharSequence text) {
+        Intent toLaunch = new Intent(getApplicationContext(), MonitorActivity.class)
+                .setAction(Intent.ACTION_MAIN)
+                .addCategory(Intent.CATEGORY_LAUNCHER)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(
+                this,
+                0,
+                toLaunch,
+                Build.VERSION.SDK_INT >= 23
+                        ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                        : PendingIntent.FLAG_UPDATE_CURRENT
+        );
+        return new NotificationCompat.Builder(this, channelId)
+                .setSmallIcon(R.drawable.ic_stat_haven)
+                .setContentTitle(getString(R.string.app_name))
+                .setContentText(text)
+                .setPriority(NotificationCompat.PRIORITY_MIN)
+                .setContentIntent(resultPendingIntent)
+                .setWhen(System.currentTimeMillis())
+                .setVisibility(NotificationCompat.VISIBILITY_SECRET);
+    }
+
+    private android.app.Notification buildNotification() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            setupNotificationChannel();
+        }
+        return notificationBuilder(getText(R.string.secure_service_started)).build();
     }
 
     public boolean isRunning ()
@@ -251,9 +285,26 @@ public class MonitorService extends Service {
             }
         }
 
-        //moving these out of the accelerometer pref, but need to enable off prefs for them too
-        mBaroMonitor = new BarometerMonitor(this);
-        mLightMonitor = new AmbientLightMonitor(this);
+        if (!mPrefs.isSensorEnabled(EventTrigger.ACCELEROMETER, true)) {
+            if (mAccelManager != null) {
+                mAccelManager.stop(this);
+                mAccelManager = null;
+            }
+            if (Build.VERSION.SDK_INT >= 18 && mBumpMonitor != null) {
+                mBumpMonitor.stop(this);
+                mBumpMonitor = null;
+            }
+        }
+
+        if (mPrefs.isSensorEnabled(EventTrigger.PRESSURE, true)) {
+            mBaroMonitor = new BarometerMonitor(this);
+        }
+        if (mPrefs.isSensorEnabled(EventTrigger.LIGHT, true)) {
+            mLightMonitor = new AmbientLightMonitor(this);
+        }
+        if (mPrefs.isSensorEnabled(EventTrigger.EMF, true)) {
+            mEmfMonitor = new EmfMonitor(this);
+        }
 
         mPrefs.activateMonitorService(true);
 
@@ -264,7 +315,8 @@ public class MonitorService extends Service {
 
         // && !mPrefs.getVideoMonitoringActive()
 
-        if (!mPrefs.getMicrophoneSensitivity().equals(PreferenceManager.OFF))
+        if (!mPrefs.getMicrophoneSensitivity().equals(PreferenceManager.OFF)
+                && mPrefs.isSensorEnabled(EventTrigger.MICROPHONE, true))
             mMicMonitor = new MicrophoneMonitor(this);
 
         mPowerReceiver = new PowerConnectionReceiver();
@@ -282,20 +334,27 @@ public class MonitorService extends Service {
         //this will never be false:
         // -you can't use ==, != for string comparisons, use equals() instead
         // -Value is never set to OFF in the first place
-        if (!mPrefs.getAccelerometerSensitivity().equals(PreferenceManager.OFF)) {
+        if (!mPrefs.getAccelerometerSensitivity().equals(PreferenceManager.OFF) && mAccelManager != null) {
             mAccelManager.stop(this);
-            if(Build.VERSION.SDK_INT>=18) {
+            if(Build.VERSION.SDK_INT>=18 && mBumpMonitor != null) {
                 mBumpMonitor.stop(this);
             }
         }
 
         //moving these out of the accelerometer pref, but need to enable off prefs for them too
-        mBaroMonitor.stop(this);
-        mLightMonitor.stop(this);
+        if (mBaroMonitor != null) {
+            mBaroMonitor.stop(this);
+        }
+        if (mLightMonitor != null) {
+            mLightMonitor.stop(this);
+        }
+        if (mEmfMonitor != null) {
+            mEmfMonitor.stop(this);
+        }
 
         // && !mPrefs.getVideoMonitoringActive())
 
-        if (!mPrefs.getMicrophoneSensitivity().equals(PreferenceManager.OFF))
+        if (!mPrefs.getMicrophoneSensitivity().equals(PreferenceManager.OFF) && mMicMonitor != null)
             mMicMonitor.stop(this);
 
         if (mPrefs.getMonitorServiceActive()) {
@@ -316,6 +375,7 @@ public class MonitorService extends Service {
 
         Date now = new Date();
         boolean doNotification = false;
+        SensorFusion.Result fusionResult = sensorFusion.observe(alertType);
 
         //for the UI visual
         Intent iEvent = new Intent("event");
@@ -324,6 +384,15 @@ public class MonitorService extends Service {
 
         if (TextUtils.isEmpty(value))
             return;
+
+        observeSensorValue(alertType, value);
+
+        if (alertType == EventTrigger.EMF) {
+            try {
+                if (Float.parseFloat(value) <= 0f) return;
+            } catch (NumberFormatException ignored) {
+            }
+        }
 
         if (mLastEvent == null) {
             mLastEvent = new Event();
@@ -347,6 +416,10 @@ public class MonitorService extends Service {
             doNotification = !(mPrefs.getVideoMonitoringActive() && alertType == EventTrigger.CAMERA);
         }
 
+        if (fusionResult.highPriority) {
+            doNotification = true;
+        }
+
         EventTrigger eventTrigger = new EventTrigger();
         eventTrigger.setType(alertType);
         eventTrigger.setPath(value);
@@ -368,6 +441,24 @@ public class MonitorService extends Service {
             StringBuilder alertMessage = new StringBuilder();
             alertMessage.append(getString(R.string.intrusion_detected,
                     eventTrigger.getStringType(new ResourceManager(this))));
+
+        if (mPrefs.getSilentOperations()) {
+                alertMessage.append(" [S").append(fusionResult.score).append(']');
+            } else {
+                alertMessage.append(" [score ").append(fusionResult.score).append(']');
+            }
+
+            if (fusionResult.tripleCorrelation) {
+                SecureCaptureService.startEvidenceCapture(this);
+            }
+
+            RuntimeLogStore.log(RuntimeLogStore.Level.WARNING, "SensorAlert",
+                    eventTrigger.getStringType(new ResourceManager(this)) +
+                            " fusion=" + fusionResult.score);
+
+            if (!mPrefs.getOperatingMode().equals(OperatingMode.FULL_SIGNALS)) {
+                return;
+            }
 
             if (mPrefs.isRemoteNotificationActive() && mPrefs.isSignalVerified()) {
                 //since this is a secure channel, we can add the Onion address
@@ -394,8 +485,60 @@ public class MonitorService extends Service {
 
                 sender.sendMessage(recips, alertMessage.toString(), attachment, null);
             }
+
+            if (mPrefs.getTelegramEnabled() && mPrefs.isTelegramConfigured()) {
+                File mediaFile = TextUtils.isEmpty(eventTrigger.getPath())
+                        ? null : new File(eventTrigger.getPath());
+                TelegramSender.sendMessage(this, alertMessage.toString(), mediaFile);
+            }
         }
 
+        if (anomalyResult != null && anomalyResult.anomaly) {
+            SecureCaptureService.startEvidenceCapture(this);
+        }
+
+    }
+
+    private void observeSensorValue(int alertType, String value) {
+        anomalyResult = null;
+        int channel = switch (alertType) {
+            case EventTrigger.ACCELEROMETER, EventTrigger.BUMP -> 0;
+            case EventTrigger.MICROPHONE -> 1;
+            case EventTrigger.LIGHT -> 2;
+            case EventTrigger.EMF -> 3;
+            default -> -1;
+        };
+        if (channel < 0) return;
+        try {
+            double numericValue = Double.parseDouble(value.replaceAll("[^0-9.E+-]", ""));
+            SensorFeatureWindow.FeatureVector vector =
+                    featureWindow.observe(System.currentTimeMillis(), channel, numericValue);
+            if (vector == null) return;
+
+            if (anomalyModel == null) {
+                anomalyCalibrator.add(vector.values);
+                if (anomalyCalibrator.isReady()) {
+                    anomalyModel = anomalyCalibrator.calibrate();
+                    RuntimeLogStore.info("Anomaly", "Calibrated model from " +
+                            (anomalyModel == null ? 0 : anomalyModel.sampleCount) + " samples");
+                }
+                return;
+            }
+
+            HotellingPcaModel.InferenceResult result = anomalyModel.infer(vector.values);
+            anomalyResult = result;
+            RuntimeLogStore.log(result.anomaly ? RuntimeLogStore.Level.ERROR : RuntimeLogStore.Level.DEBUG,
+                    "PCA", "T2=" + result.tSquared);
+            latestAnomalyPoint = new org.havenapp.main.anomaly.AnomalyPoint(
+                    vector.timestamp,
+                    anomalyModel.firstTwoComponentCoordinates(vector.values).getFirst(),
+                    anomalyModel.firstTwoComponentCoordinates(vector.values).getSecond(),
+                    result.tSquared,
+                    result.anomaly);
+            if (result.anomaly) SecureCaptureService.startEvidenceCapture(this);
+        } catch (Exception exception) {
+            RuntimeLogStore.warning("PCA", "Unable to process value: " + value);
+        }
     }
 
 

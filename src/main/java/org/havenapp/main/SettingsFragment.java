@@ -39,6 +39,7 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import org.havenapp.main.service.SignalExecutorTask;
+import org.havenapp.main.service.DevicePolicyHelper;
 import org.havenapp.main.service.SignalSender;
 import org.havenapp.main.service.WebServer;
 import org.havenapp.main.ui.AccelConfigureActivity;
@@ -69,7 +70,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         /*
          * We create an application directory to store images and audio
          */
-        File directory = new File(Environment.getExternalStorageDirectory() + preferences.getDirPath());
+        File directory = new File(Environment.getExternalStorageDirectory() + preferences.getBaseStoragePath());
         directory.mkdirs();
 
         if (preferences.getCameraActivation()) {
@@ -182,9 +183,19 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
         if (preferences.getHeartbeatMonitorMessage() == null)
         {
-            findPreference(PreferenceManager.HEARTBEAT_MONITOR_MESSAGE).setSummary(R.string.hearbeat_message_summary);
+            findPreference(PreferenceManager.HEARTBEAT_MONITOR_MESSAGE).setSummary(R.string.heartbeat_message_summary);
         } else {
-            findPreference(PreferenceManager.HEARTBEAT_MONITOR_MESSAGE).setSummary(R.string.hearbeat_message_summary_on);
+            findPreference(PreferenceManager.HEARTBEAT_MONITOR_MESSAGE).setSummary(R.string.heartbeat_message_summary_on);
+        }
+
+        ((SwitchPreference) findPreference(PreferenceManager.TELEGRAM_ENABLED))
+                .setChecked(preferences.getTelegramEnabled());
+        if (checkValidString(preferences.getTelegramBotToken())) {
+            findPreference(PreferenceManager.TELEGRAM_BOT_TOKEN).setSummary(R.string.bullets);
+        }
+        if (checkValidString(preferences.getTelegramChatId())) {
+            findPreference(PreferenceManager.TELEGRAM_CHAT_ID)
+                    .setSummary(preferences.getTelegramChatId() + "\n" + getString(R.string.telegram_setup_required));
         }
 
         Preference prefCameraSensitivity = findPreference(PreferenceManager.CAMERA_SENSITIVITY);
@@ -205,6 +216,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             return true;
         });
 
+        findPreference("audio_filter_tuner").setOnPreferenceClickListener(preference -> {
+            startActivity(new Intent(mActivity, org.havenapp.main.ui.AudioFilterTunerActivity.class));
+            return true;
+        });
+
         Preference prefConfigTimeDelay = findPreference(PreferenceManager.CONFIG_TIME_DELAY);
         prefConfigTimeDelay.setOnPreferenceClickListener(preference -> {
             showTimeDelayDialog(PreferenceManager.CONFIG_TIME_DELAY);
@@ -220,6 +236,23 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         Preference prefDisableBatteryOpt = findPreference(PreferenceManager.DISABLE_BATTERY_OPT);
         prefDisableBatteryOpt.setOnPreferenceClickListener(preference -> {
             requestChangeBatteryOptimizations();
+            return true;
+        });
+
+        findPreference("device_policy_airplane").setOnPreferenceClickListener(preference -> {
+            DevicePolicyHelper.openAirplaneMode(mActivity);
+            return true;
+        });
+        findPreference("device_policy_bluetooth").setOnPreferenceClickListener(preference -> {
+            DevicePolicyHelper.requestBluetoothOff(mActivity);
+            return true;
+        });
+        findPreference("device_policy_nfc").setOnPreferenceClickListener(preference -> {
+            DevicePolicyHelper.openNfcSettings(mActivity, android.nfc.NfcAdapter.getDefaultAdapter(mActivity));
+            return true;
+        });
+        findPreference("device_policy_usb").setOnPreferenceClickListener(preference -> {
+            DevicePolicyHelper.openUsbPrefs(mActivity);
             return true;
         });
 
@@ -502,7 +535,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                     }
                 } else if (!hbSwitchOn && isMonitoring) {
                     preferences.activateHeartbeat(false);
-                    findPreference(PreferenceManager.HEARTBEAT_MONITOR_DELAY).setSummary(R.string.hearbeat_monitor_dialog);
+                    findPreference(PreferenceManager.HEARTBEAT_MONITOR_DELAY).setSummary(R.string.heartbeat_monitor_dialog);
                     if (preferences.getMonitorServiceActive()) {
                         SignalSender sender = SignalSender.getInstance(getActivity(), preferences.getSignalUsername());
                         sender.stopHeartbeatTimer();
@@ -536,16 +569,48 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
                 if (checkValidString(text)) {
                     preferences.setHeartbeatMonitorMessage(text);
-                    findPreference(PreferenceManager.HEARTBEAT_MONITOR_MESSAGE).setSummary(R.string.hearbeat_message_summary_on);
+                    findPreference(PreferenceManager.HEARTBEAT_MONITOR_MESSAGE).setSummary(R.string.heartbeat_message_summary_on);
                 }
                 else {
                     preferences.setHeartbeatMonitorMessage(null);
-                    findPreference(PreferenceManager.HEARTBEAT_MONITOR_MESSAGE).setSummary(R.string.hearbeat_message_summary);
+                    findPreference(PreferenceManager.HEARTBEAT_MONITOR_MESSAGE).setSummary(R.string.heartbeat_message_summary);
                 }
                 break;
             }
             case PreferenceManager.CONFIG_BASE_STORAGE: {
                 setDefaultStoragePath();
+                break;
+            }
+            case PreferenceManager.TELEGRAM_BOT_TOKEN: {
+                String text = ((EditTextPreference) findPreference(PreferenceManager.TELEGRAM_BOT_TOKEN)).getText();
+                preferences.setTelegramBotToken(checkValidString(text) ? text.trim() : "");
+                findPreference(PreferenceManager.TELEGRAM_BOT_TOKEN)
+                        .setSummary(checkValidString(text) ? R.string.bullets : R.string.telegram_bot_token_desc);
+                break;
+            }
+            case PreferenceManager.TELEGRAM_CHAT_ID: {
+                String text = ((EditTextPreference) findPreference(PreferenceManager.TELEGRAM_CHAT_ID)).getText();
+                preferences.setTelegramChatId(checkValidString(text) ? text.trim() : "");
+                Preference chatIdPreference = findPreference(PreferenceManager.TELEGRAM_CHAT_ID);
+                if (checkValidString(text)) {
+                    chatIdPreference.setSummary(text.trim() + "\n" + getString(R.string.telegram_setup_required));
+                } else {
+                    chatIdPreference.setSummary(R.string.telegram_chat_id_desc);
+                }
+                break;
+            }
+            case "disarm_code": {
+                String text = ((EditTextPreference) findPreference("disarm_code")).getText();
+                preferences.setDisarmCode(checkValidString(text) ? text : "");
+                findPreference("disarm_code").setSummary(
+                        checkValidString(text) ? R.string.bullets : R.string.disarm_code_summary);
+                break;
+            }
+            case "panic_code": {
+                String text = ((EditTextPreference) findPreference("panic_code")).getText();
+                preferences.setPanicCode(checkValidString(text) ? text : "");
+                findPreference("panic_code").setSummary(
+                        checkValidString(text) ? R.string.bullets : R.string.panic_code_summary);
                 break;
             }
         }

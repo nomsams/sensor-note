@@ -72,7 +72,7 @@ class RemoveDeletedFilesJob: Job() {
 
     private fun getAllFilesToBeDeleted(targetFileList: MutableList<File>) {
         val storageDir = File(Environment.getExternalStorageDirectory(),
-                PreferenceManager(HavenApp.getInstance()).baseStoragePath)
+                PreferenceManager(HavenApp.getInstance()).getBaseStoragePath())
 
         if (!storageDir.exists())
             return
@@ -85,7 +85,7 @@ class RemoveDeletedFilesJob: Job() {
 
     private fun deleteEmptyDirs() {
         val storageDir = File(Environment.getExternalStorageDirectory(),
-                PreferenceManager(HavenApp.getInstance()).baseStoragePath)
+                PreferenceManager(HavenApp.getInstance()).getBaseStoragePath())
 
         if (!storageDir.exists())
             return
@@ -104,7 +104,7 @@ class RemoveDeletedFilesJob: Job() {
         val currentFileList = mutableListOf<File>()
 
         getAllFileInStorageDir(storageDir, currentFileList)
-        currentFileList.addAll(storageDir.listFiles())
+        currentFileList.addAll(storageDir.listFiles()?.filter { it.isDirectory } ?: emptyList())
 
         currentFileList.mapTo(filePaths) {
             it.absolutePath

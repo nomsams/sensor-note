@@ -73,7 +73,7 @@ public class BumpMonitor {
             Log.i("BumpMonitor", "Sensor triggered");
             //value[0] = 1.0 when the sensor triggers. 1.0 is the only allowed value.
             long curTime = System.currentTimeMillis();
-            // only allow one update every 100ms.
+            // only allow one update every 1000ms (1 second).
             if (event.sensor.getType() == Sensor.TYPE_SIGNIFICANT_MOTION) {
                 if ((curTime - lastUpdate) > CHECK_INTERVAL) {
                     lastUpdate = curTime;

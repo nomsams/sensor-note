@@ -2,6 +2,7 @@ package org.havenapp.main.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import org.havenapp.main.R
 import org.havenapp.main.resources.IResourceManager
@@ -57,6 +58,11 @@ class EventTrigger {
          * Heartbeat notification message
          */
         const val HEART = 8
+
+        /**
+         * Magnetic field anomaly
+         */
+        const val EMF = 9
     }
 
     @PrimaryKey(autoGenerate = true)
@@ -88,6 +94,7 @@ class EventTrigger {
             BUMP -> resourceManager.getString(R.string.sensor_bump)
             CAMERA_VIDEO -> resourceManager.getString(R.string.sensor_camera_video)
             HEART -> resourceManager.getString(R.string.sensor_heartbeat)
+            EMF -> resourceManager.getString(R.string.sensor_emf)
             else -> resourceManager.getString(R.string.sensor_unknown)
         }
 

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="operating_modes">
+        <item>No SIM / no signals</item>
+        <item>Full signals (SMS, Telegram, heartbeat)</item>
+    </string-array>
+    <string-array name="operating_mode_values">
+        <item>NO_SIGNALS</item>
+        <item>FULL_SIGNALS</item>
+    </string-array>
+</resources>

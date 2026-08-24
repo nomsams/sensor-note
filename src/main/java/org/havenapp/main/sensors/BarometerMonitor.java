@@ -25,7 +25,7 @@ import androidx.appcompat.app.AppCompatActivity;
  */
 public class BarometerMonitor implements SensorEventListener {
 
-    // For shake motion detection.
+    // For pressure change detection.
     private SensorManager sensorMgr;
 
     /**
@@ -34,19 +34,19 @@ public class BarometerMonitor implements SensorEventListener {
     private Sensor sensor;
 
     /**
-     * Last update of the accelerometer
+     * Last update of the barometer
      */
     private long lastUpdate = -1;
 
     /**
-     * Current accelerometer values
+     * Current pressure values
      */
-    private float accel_values[];
+    private float pressure_values[];
 
     /**
-     * Last accelerometer values
+     * Last pressure values
      */
-    private float last_accel_values[];
+    private float last_pressure_values[];
 
     /**
      * Data field used to retrieve application prefences
@@ -55,19 +55,18 @@ public class BarometerMonitor implements SensorEventListener {
 
 
     /**
-     * Text showing accelerometer values
+     * Text showing pressure values
      */
     private int maxAlertPeriod = 30;
     private int remainingAlertPeriod = 0;
     private boolean alert = false;
     private final static int CHECK_INTERVAL = 1000;
 
-    private int CHANGE_THRESHOLD = 30; //hPa or mbar
+    private float CHANGE_THRESHOLD = 0.20f; // hPa / mbar
 
     public BarometerMonitor(Context context) {
         prefs = new PreferenceManager(context);
-
-
+        CHANGE_THRESHOLD = prefs.getPressureSensitivity();
 
         context.bindService(new Intent(context,
                 MonitorService.class), mConnection, Context.BIND_ABOVE_CLIENT);
@@ -91,14 +90,14 @@ public class BarometerMonitor implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
         long curTime = System.currentTimeMillis();
 
-        // only allow one update every 100ms.
+        // only allow one update every 1000ms (1 second).
         if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {
 
             if ((curTime - lastUpdate) > CHECK_INTERVAL) {
                 long diffTime = (curTime - lastUpdate);
                 lastUpdate = curTime;
 
-                accel_values = event.values.clone();
+                pressure_values = event.values.clone();
 
                 if (alert && remainingAlertPeriod > 0) {
                     remainingAlertPeriod = remainingAlertPeriod - 1;
@@ -106,9 +105,9 @@ public class BarometerMonitor implements SensorEventListener {
                     alert = false;
                 }
 
-                if (last_accel_values != null) {
+                if (last_pressure_values != null) {
 
-                    float diffValue = Math.abs(accel_values[0] - last_accel_values[0]);
+                    float diffValue = Math.abs(pressure_values[0] - last_pressure_values[0]);
                     Log.d("Pressure","diff: " + diffValue);
                     boolean logit = (diffValue > CHANGE_THRESHOLD);
 
@@ -122,7 +121,8 @@ public class BarometerMonitor implements SensorEventListener {
 
                         Message message = new Message();
                         message.what = EventTrigger.PRESSURE;
-                        message.getData().putString(MonitorService.KEY_PATH, diffValue+"");
+                        message.getData().putString(MonitorService.KEY_PATH,
+                                String.format(java.util.Locale.US, "%.3f hPa", diffValue));
 
                         try {
                             if (serviceMessenger != null) {
@@ -134,7 +134,7 @@ public class BarometerMonitor implements SensorEventListener {
                         }
                     }
                 }
-                last_accel_values = accel_values.clone();
+                last_pressure_values = pressure_values.clone();
             }
         }
     }
@@ -150,13 +150,13 @@ public class BarometerMonitor implements SensorEventListener {
 
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
-            Log.i("AccelerometerFragment", "SERVICE CONNECTED");
+            Log.i("BarometerMonitor", "SERVICE CONNECTED");
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             serviceMessenger = new Messenger(service);
         }
 
         public void onServiceDisconnected(ComponentName arg0) {
-            Log.i("AccelerometerFragment", "SERVICE DISCONNECTED");
+            Log.i("BarometerMonitor", "SERVICE DISCONNECTED");
             serviceMessenger = null;
         }
     };

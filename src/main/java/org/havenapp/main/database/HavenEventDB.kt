@@ -17,7 +17,7 @@ import org.havenapp.main.model.EventTrigger
 /**
  * Created by Arka Prava Basu <arkaprava94@gmail.com> on 23/5/18.
  */
-@Database(entities = [(Event::class), (EventTrigger::class)], version = 4)
+@Database(entities = [(Event::class), (EventTrigger::class)], version = 5)
 @TypeConverters(HavenEventDBConverters::class)
 abstract class HavenEventDB : RoomDatabase() {
 

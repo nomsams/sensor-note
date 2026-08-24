@@ -37,7 +37,7 @@ import java.util.Objects;
 
 public class PreferenceManager {
 	
-    private SharedPreferences appSharedPrefs;
+    public SharedPreferences appSharedPrefs;
     private Editor prefsEditor;
     
     public static final String LOW = "Low";
@@ -79,7 +79,7 @@ public class PreferenceManager {
     private static final String TIMER_DELAY="timer_delay";
     private static final String VIDEO_LENGTH="video_length";
     public static final String CONFIG_VIDEO_LENGTH ="config_video_length";
-    private static final String DIR_PATH = "/secureit";
+    private static final String DIR_PATH = CONFIG_BASE_STORAGE_DEFAULT;
 
     public static final String REMOTE_ACCESS_ACTIVE = "remote_access_active";
     public static final String REMOTE_ACCESS_ONION = "remote_access_onion";
@@ -98,6 +98,18 @@ public class PreferenceManager {
 
     public static final String CONFIG_BASE_STORAGE = "config_base_storage";
     private static final String CONFIG_BASE_STORAGE_DEFAULT = "/haven";
+
+    public static final String TELEGRAM_ENABLED = "telegram_enabled";
+    public static final String TELEGRAM_BOT_TOKEN = "telegram_bot_token";
+    public static final String TELEGRAM_CHAT_ID = "telegram_chat_id";
+    public static final String AUDIO_SPECTROGRAM_ENABLED = "audio_spectrogram_enabled";
+    private static final String EMF_SENSITIVITY = "emf_sensitivity";
+    private static final String PRESSURE_SENSITIVITY = "pressure_sensitivity";
+    private static final String DISARM_CODE = "disarm_code";
+    private static final String PANIC_CODE = "panic_code";
+    private static final String PENDING_ARM_REQUEST = "pending_arm_request";
+    public static final String OPERATING_MODE = "operating_mode";
+    public static final String SENSOR_ENABLED_PREFIX = "sensor_enabled_";
 
     // keeping the key value same for data migration.
     static final String REMOTE_PHONE_NUMBER = "sms_number";
@@ -118,7 +130,7 @@ public class PreferenceManager {
 
     public void setFirstLaunch(boolean firstLaunch) {
         prefsEditor.putBoolean(FIRST_LAUNCH, firstLaunch);
-        prefsEditor.commit();
+        prefsEditor.apply();
     }
 
     /**
@@ -139,7 +151,7 @@ public class PreferenceManager {
     public void setSignalUsername (String signalUsername)
     {
         prefsEditor.putString(SIGNAL_USERNAME,signalUsername);
-        prefsEditor.commit();
+        prefsEditor.apply();
     }
 
     /**
@@ -159,7 +171,7 @@ public class PreferenceManager {
 
     public void setVerifiedSignalUsername(String verifiedSignalUsername) {
         prefsEditor.putString(SIGNAL_VERIFIED_USERNAME, verifiedSignalUsername);
-        prefsEditor.commit();
+        prefsEditor.apply();
     }
 
     /**
@@ -175,7 +187,7 @@ public class PreferenceManager {
 
     public void activateRemoteAccess (boolean active) {
         prefsEditor.putBoolean(REMOTE_ACCESS_ACTIVE,active);
-        prefsEditor.commit();
+        prefsEditor.apply();
     }
 
     public boolean getRemoteAccessActive ()
@@ -185,7 +197,7 @@ public class PreferenceManager {
 
     public void activateMonitorService (boolean active) {
         prefsEditor.putBoolean(MONITOR_SERVICE_ACTIVE,active);
-        prefsEditor.commit();
+        prefsEditor.apply();
     }
 
     public boolean getMonitorServiceActive ()
@@ -195,7 +207,7 @@ public class PreferenceManager {
 
     public void setRemoteAccessOnion (String onionAddress) {
         prefsEditor.putString(REMOTE_ACCESS_ONION,onionAddress);
-        prefsEditor.commit();
+        prefsEditor.apply();
     }
 
     public String getRemoteAccessOnion () {
@@ -204,7 +216,7 @@ public class PreferenceManager {
 
     public void setRemoteAccessCredential (String remoteCredential) {
         prefsEditor.putString(REMOTE_ACCESS_CRED,remoteCredential);
-        prefsEditor.commit();
+        prefsEditor.apply();
     }
 
     public String getRemoteAccessCredential () {
@@ -213,7 +225,7 @@ public class PreferenceManager {
 
     public void activateAccelerometer(boolean active) {
     	prefsEditor.putBoolean(ACCELEROMETER_ACTIVE, active);
-    	prefsEditor.commit();
+        prefsEditor.apply();
     }
     
     public boolean getAccelerometerActivation() {
@@ -222,7 +234,7 @@ public class PreferenceManager {
     
     public void setAccelerometerSensitivity(String sensitivity) {
     	prefsEditor.putString(ACCELEROMETER_SENSITIVITY, sensitivity);
-    	prefsEditor.commit();
+        prefsEditor.apply();
     }
     
     public String getAccelerometerSensitivity() {
@@ -231,16 +243,133 @@ public class PreferenceManager {
 
     public void setActivateVideoMonitoring(boolean active) {
         prefsEditor.putBoolean(context.getResources().getString(R.string.video_active_preference_key), active);
-        prefsEditor.commit();
+        prefsEditor.apply();
     }
 
     public boolean getVideoMonitoringActive() {
         return appSharedPrefs.getBoolean(context.getResources().getString(R.string.video_active_preference_key), false);
     }
 
+    public void activateTelegram(boolean active) {
+        prefsEditor.putBoolean(TELEGRAM_ENABLED, active);
+        prefsEditor.apply();
+    }
+
+    public boolean getTelegramEnabled() {
+        return appSharedPrefs.getBoolean(TELEGRAM_ENABLED, false);
+    }
+
+    public void setTelegramBotToken(String botToken) {
+        prefsEditor.putString(TELEGRAM_BOT_TOKEN, botToken);
+        prefsEditor.apply();
+    }
+
+    public String getTelegramBotToken() {
+        return appSharedPrefs.getString(TELEGRAM_BOT_TOKEN, "");
+    }
+
+    public void setTelegramChatId(String chatId) {
+        prefsEditor.putString(TELEGRAM_CHAT_ID, chatId);
+        prefsEditor.apply();
+    }
+
+    public String getTelegramChatId() {
+        return appSharedPrefs.getString(TELEGRAM_CHAT_ID, "");
+    }
+
+    public boolean isTelegramConfigured() {
+        return !TextUtils.isEmpty(getTelegramBotToken()) && !TextUtils.isEmpty(getTelegramChatId());
+    }
+
+    public void setAudioSpectrogramEnabled(boolean enabled) {
+        prefsEditor.putBoolean(AUDIO_SPECTROGRAM_ENABLED, enabled);
+        prefsEditor.apply();
+    }
+
+    public boolean getAudioSpectrogramEnabled() {
+        return appSharedPrefs.getBoolean(AUDIO_SPECTROGRAM_ENABLED, false);
+    }
+
+    public void setEmfSensitivity(String sensitivity) {
+        prefsEditor.putString(EMF_SENSITIVITY, sensitivity);
+        prefsEditor.apply();
+    }
+
+    public String getEmfSensitivity() {
+        return appSharedPrefs.getString(EMF_SENSITIVITY, "25");
+    }
+
+    public void setPressureSensitivity(String sensitivity) {
+        prefsEditor.putString(PRESSURE_SENSITIVITY, sensitivity);
+        prefsEditor.apply();
+    }
+
+    public float getPressureSensitivity() {
+        try {
+            return Float.parseFloat(appSharedPrefs.getString(PRESSURE_SENSITIVITY, "0.20"));
+        } catch (Exception ignored) {
+            return 0.20f;
+        }
+    }
+
+    public void setDisarmCode(String code) {
+        prefsEditor.putString(DISARM_CODE, code);
+        prefsEditor.apply();
+    }
+
+    public String getDisarmCode() {
+        return appSharedPrefs.getString(DISARM_CODE, "");
+    }
+
+    public void setPanicCode(String code) {
+        prefsEditor.putString(PANIC_CODE, code);
+        prefsEditor.apply();
+    }
+
+    public String getPanicCode() {
+        return appSharedPrefs.getString(PANIC_CODE, "");
+    }
+
+    public void setPendingArmRequest(boolean pending) {
+        prefsEditor.putBoolean(PENDING_ARM_REQUEST, pending);
+        prefsEditor.apply();
+    }
+
+    public boolean getPendingArmRequest() {
+        return appSharedPrefs.getBoolean(PENDING_ARM_REQUEST, false);
+    }
+
+    public void setSensorEnabled(int sensorType, boolean enabled) {
+        prefsEditor.putBoolean(SENSOR_ENABLED_PREFIX + sensorType, enabled);
+        prefsEditor.apply();
+    }
+
+    public boolean isSensorEnabled(int sensorType, boolean defaultValue) {
+        return appSharedPrefs.getBoolean(SENSOR_ENABLED_PREFIX + sensorType, defaultValue);
+    }
+
+    public void setSilentOperations(boolean silent) {
+        prefsEditor.putBoolean("silent_operations", silent);
+        prefsEditor.apply();
+    }
+
+    public boolean getSilentOperations() {
+        return appSharedPrefs.getBoolean("silent_operations", true);
+    }
+
+    public void setOperatingMode(String mode) {
+        prefsEditor.putString(OPERATING_MODE, mode);
+        prefsEditor.apply();
+    }
+
+    public OperatingMode getOperatingMode() {
+        return OperatingMode.FULL_SIGNALS.name().equals(appSharedPrefs.getString(OPERATING_MODE,
+                OperatingMode.NO_SIGNALS.name())) ? OperatingMode.FULL_SIGNALS : OperatingMode.NO_SIGNALS;
+    }
+
     public void activateCamera(boolean active) {
     	prefsEditor.putBoolean(CAMERA_ACTIVE, active);
-    	prefsEditor.commit();
+        prefsEditor.apply();
     }
     
     public boolean getCameraActivation() {
@@ -249,7 +378,7 @@ public class PreferenceManager {
     
     public void setCamera(String camera) {
     	prefsEditor.putString(CAMERA, camera);
-    	prefsEditor.commit();
+        prefsEditor.apply();
     }
     
     public String getCamera() {
@@ -258,7 +387,7 @@ public class PreferenceManager {
     
     public void setCameraSensitivity(int sensitivity) {
     	prefsEditor.putInt(CAMERA_SENSITIVITY, sensitivity);
-    	prefsEditor.commit();
+        prefsEditor.apply();
     }
     
     public int getCameraSensitivity() {
@@ -267,7 +396,7 @@ public class PreferenceManager {
     
     public void activateFlash(boolean active) {
     	prefsEditor.putBoolean(FLASH_ACTIVE, active);
-    	prefsEditor.commit();
+        prefsEditor.apply();
     }
     
     public boolean getFlashActivation() {
@@ -276,7 +405,7 @@ public class PreferenceManager {
     
     public void activateMicrophone(boolean active) {
     	prefsEditor.putBoolean(MICROPHONE_ACTIVE, active);
-    	prefsEditor.commit();
+        prefsEditor.apply();
     }
     
     public boolean getMicrophoneActivation() {
@@ -285,7 +414,7 @@ public class PreferenceManager {
     
     public void setMicrophoneSensitivity(String sensitivity) {
     	prefsEditor.putString(MICROPHONE_SENSITIVITY, sensitivity);
-    	prefsEditor.commit();
+        prefsEditor.apply();
     }
     
     public String getMicrophoneSensitivity() {
@@ -319,7 +448,7 @@ public class PreferenceManager {
     public void setTimerDelay (int delay)
     {
         prefsEditor.putInt(TIMER_DELAY,delay);
-        prefsEditor.commit();
+        prefsEditor.apply();
     }
 
     public int getMonitoringTime ()
@@ -330,12 +459,12 @@ public class PreferenceManager {
     public void setMonitoringTime (int delay)
     {
         prefsEditor.putInt(VIDEO_LENGTH,delay);
-        prefsEditor.commit();
+        prefsEditor.apply();
     }
 
     public void setVoiceVerification(boolean active) {
         prefsEditor.putBoolean(VOICE_VERIFY_SIGNAL, active);
-        prefsEditor.commit();
+        prefsEditor.apply();
     }
 
     public boolean getVoiceVerificationEnabled() {
@@ -366,7 +495,7 @@ public class PreferenceManager {
     public void setDefaultMediaStoragePath (String path)
     {
         prefsEditor.putString(CONFIG_BASE_STORAGE,path);
-        prefsEditor.commit();
+        prefsEditor.apply();
     }
 
     public int getAudioLength ()
@@ -380,17 +509,17 @@ public class PreferenceManager {
 
     public void setNotificationTimeMs (int notificationTimeMs) {
         prefsEditor.putInt(NOTIFICATION_TIME,notificationTimeMs);
-        prefsEditor.commit();
+        prefsEditor.apply();
     }
 
     public void activateHeartbeat(boolean active) {
         prefsEditor.putBoolean(HEARTBEAT_MONITOR_ACTIVE, active);
-        prefsEditor.commit();
+        prefsEditor.apply();
     }
 
     public void setHeartbeatMonitorNotifications (int notificationTimeMs) {
         prefsEditor.putInt(HEARTBEAT_MONITOR_DELAY,notificationTimeMs);
-        prefsEditor.commit();
+        prefsEditor.apply();
     }
 
     public boolean getHeartbeatActive() {
@@ -406,18 +535,18 @@ public class PreferenceManager {
         return appSharedPrefs.getString(HEARTBEAT_MONITOR_MESSAGE,null);
     }
 
-    public void setHeartbeatMonitorMessage (String hearbeatMessage)
+    public void setHeartbeatMonitorMessage (String heartbeatMessage)
     {
-        prefsEditor.putString(HEARTBEAT_MONITOR_MESSAGE, hearbeatMessage);
-        prefsEditor.commit();
+        prefsEditor.putString(HEARTBEAT_MONITOR_MESSAGE, heartbeatMessage);
+        prefsEditor.apply();
     }
 
     public String getHeartbeatPrefix() {
-        return context.getString(R.string.hearbeat_monitor_initial_message_1);
+        return context.getString(R.string.heartbeat_monitor_initial_message_1);
     }
 
     public String getHeartbeatSuffix() {
-        return context.getString(R.string.hearbeat_monitor_initial_message_2);
+        return context.getString(R.string.heartbeat_monitor_initial_message_2);
     }
 
 
@@ -431,7 +560,7 @@ public class PreferenceManager {
      */
     public void setCurrentSession(Date startTime) {
         prefsEditor.putString(CURRENT_EVENT_START_TIME, Utils.getDateTime(startTime));
-        prefsEditor.commit();
+        prefsEditor.apply();
     }
 
     /**

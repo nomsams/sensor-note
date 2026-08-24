@@ -52,7 +52,7 @@ public class SignalSender {
 
     public static synchronized SignalSender getInstance (Context context, String username)
     {
-        if (mInstance == null)
+        if (mInstance == null || !username.equals(mInstance.mUsername))
         {
             mInstance = new SignalSender(context, username);
         }
@@ -62,11 +62,15 @@ public class SignalSender {
 
     public void setUsername (String username)
     {
-        mUsername = username;
+        if (!username.equals(mUsername)) {
+            mUsername = username;
+            mInstance = null; // Force recreation on next getInstance
+        }
     }
 
     public void reset ()
     {
+        stopHeartbeatTimer();
         Main main = new Main(mContext);
         main.resetUser();
         mInstance = null;
@@ -117,9 +121,10 @@ public class SignalSender {
             }
             public void onFinish() {
                 beatingHeart();
-                start();
-            }
+                // Restart the timer for the next heartbeat
+                startHeartbeatTimer(countMs);
         }.start();
+
     }
 
     private void beatingHeart () {
@@ -142,7 +147,7 @@ public class SignalSender {
     {
         if (!TextUtils.isEmpty(mUsername)) {
             mAlertCount ++;
-            getInstance(mContext, mUsername.trim());
+            // getInstance(mContext, mUsername.trim()); // Removed: unnecessary call
             ArrayList<String> recipient = new ArrayList<>();
             recipient.add(preferences.getRemotePhoneNumber());
             sendMessage(recipient, message,null, null);

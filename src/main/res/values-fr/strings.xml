@@ -109,11 +109,11 @@
     <string name="verify_signal_by_phone">Plutôt m’appeler</string>
     <string name="sensor_camera_video">Mouvement (vidéo)</string>
     <string name="video_settings">Paramètres de la vidéo</string>
-    <string name="hearbeat_monitor_summary">Fréquence de vérification</string>
-    <string name="hearbeat_monitor_dialog">Définir la fréquence des alertes</string>
-    <string name="hearbeat_message_title">Message d’alerte</string>
-    <string name="hearbeat_message_summary">Définir un texte de message personnalisé</string>
-    <string name="hearbeat_message_summary_on">Les alertes personnalisées sont activées</string>
+    <string name="heartbeat_monitor_summary">Fréquence de vérification</string>
+    <string name="heartbeat_monitor_dialog">Définir la fréquence des alertes</string>
+    <string name="heartbeat_message_title">Message d’alerte</string>
+    <string name="heartbeat_message_summary">Définir un texte de message personnalisé</string>
+    <string name="heartbeat_message_summary_on">Les alertes personnalisées sont activées</string>
     <string name="power_source_status_usb">Recharge USB</string>
     <string name="power_source_status_wireless">Recharge sans fil</string>
     <string name="power_source_status_ac">Recharge CA</string>
@@ -123,7 +123,7 @@
     <string name="verification_dialog_summary_verified">Le numéro Signal a été confirmé</string>
     <string name="config_video_length_label">Définir la durée de surveillance vidéo</string>
     <string name="video_monitoring">Surveillance vidéo</string>
-    <string name="hearbeat_monitor_initial_message_2">minute(s) que Refuge est actif et surveille.</string>
+    <string name="heartbeat_monitor_initial_message_2">minute(s) que Refuge est actif et surveille.</string>
     <string name="battery_level_msg_text">Niveau de la pile</string>
     <string name="title_activity_video_player">Activité du lecteur vidéo</string>
     <string name="config_storage_path">Chemin du dossier de stockage</string>
@@ -152,11 +152,11 @@
     <string name="reset_configuration_desc">Toutes les configurations relatives à Signal seront effacées. Vous devrez vous réinscrire et reconfirmer l’inscription pour utiliser les services de Signal à l’avenir. Le voulez-vous vraiment \?</string>
     <string name="run_disk_cleanup">Effacer de l’appareil les journaux supprimés</string>
     <string name="sensor_heartbeat">Battement de cœur</string>
-    <string name="hearbeat_monitor">Haven – moniteur de battements de cœur</string>
-    <string name="hearbeat_monitor_enable">Activer l’alerte de battements de cœur</string>
+    <string name="heartbeat_monitor">Haven – moniteur de battements de cœur</string>
+    <string name="heartbeat_monitor_enable">Activer l’alerte de battements de cœur</string>
     <string name="heartbeat_time_dialog">Saisissez une fréquence (en minutes) pour envoyer le pourcentage de la pile et un émoji monocaractère de cœur. Les alertes cessent quand Refuge arrête sa surveillance pour quelque raison que ce soit.</string>
-    <string name="hearbeat_message_dialog">Personnalisez le message de notification de battement de cœur. Laissez vide pour utiliser l’émoji de cœur par défaut.</string>
-    <string name="hearbeat_monitor_initial_message_1">Moniteur de battements de cœur est activé : vous recevrez une notification toutes les</string>
+    <string name="heartbeat_message_dialog">Personnalisez le message de notification de battement de cœur. Laissez vide pour utiliser l’émoji de cœur par défaut.</string>
+    <string name="heartbeat_monitor_initial_message_1">Moniteur de battements de cœur est activé : vous recevrez une notification toutes les</string>
     <string name="verification_successful">A été confirmée</string>
     <string name="hint_number" translatable="false">+12125551212</string>
     <string name="app_name" translatable="false">Refuge</string>

@@ -58,7 +58,7 @@ public class AccelerometerMonitor implements SensorEventListener {
      */
     private int shakeThreshold = -1;
 
-    private float mAccelCurrent =  SensorManager.GRAVITY_EARTH;
+    private float mAccelCurrent = SensorManager.GRAVITY_EARTH;
     private float mAccelLast = SensorManager.GRAVITY_EARTH;
     private float mAccel = 0.00f;
     /**

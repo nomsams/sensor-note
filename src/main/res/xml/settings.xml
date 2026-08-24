@@ -1,6 +1,15 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <ListPreference
+        app:iconSpaceReserved="false"
+        android:defaultValue="NO_SIGNALS"
+        android:entries="@array/operating_modes"
+        android:entryValues="@array/operating_mode_values"
+        android:key="operating_mode"
+        android:summary="%s"
+        android:title="@string/operating_mode_title" />
+
 
     <Preference
         app:iconSpaceReserved="false"
@@ -63,9 +72,99 @@
 
         <Preference
             app:iconSpaceReserved="false"
+            android:key="audio_filter_tuner"
+            android:summary="@string/audio_filter_tuner_summary"
+            android:title="@string/audio_filter_tuner_title" />
+
+        <Preference
+            app:iconSpaceReserved="false"
             android:key="config_movement"
             android:title="@string/accelerometer_prompt" />
 
+        <EditTextPreference
+            app:iconSpaceReserved="false"
+            android:defaultValue="25"
+            android:dialogLayout="@layout/pref_dialog_edit_text"
+            android:dialogMessage="@string/magnetic_field_threshold_hint"
+            android:inputType="numberDecimal"
+            android:key="emf_sensitivity"
+            android:summary="@string/magnetic_field_threshold_summary"
+            android:title="@string/magnetic_field_sensitivity" />
+
+        <SwitchPreference
+            app:iconSpaceReserved="false"
+            android:defaultValue="true"
+            android:key="sensor_enabled_0"
+            android:title="@string/sensor_accel" />
+
+        <SwitchPreference
+            app:iconSpaceReserved="false"
+            android:defaultValue="true"
+            android:key="sensor_enabled_2"
+            android:title="@string/sensor_sound" />
+
+        <SwitchPreference
+            app:iconSpaceReserved="false"
+            android:defaultValue="true"
+            android:key="sensor_enabled_3"
+            android:title="@string/data_pressure" />
+
+        <EditTextPreference
+            app:iconSpaceReserved="false"
+            android:defaultValue="0.20"
+            android:dialogLayout="@layout/pref_dialog_edit_text"
+            android:dialogMessage="@string/pressure_threshold_hint"
+            android:inputType="numberDecimal"
+            android:key="pressure_sensitivity"
+            android:summary="@string/pressure_threshold_summary"
+            android:title="@string/pressure_sensitivity" />
+
+        <SwitchPreference
+            app:iconSpaceReserved="false"
+            android:defaultValue="true"
+            android:key="sensor_enabled_4"
+            android:title="@string/status_light" />
+
+        <SwitchPreference
+            app:iconSpaceReserved="false"
+            android:defaultValue="true"
+            android:key="sensor_enabled_9"
+            android:title="@string/sensor_emf" />
+
+        <SwitchPreference
+            app:iconSpaceReserved="false"
+            android:defaultValue="true"
+            android:key="silent_operations"
+            android:summary="@string/silent_operations_summary"
+            android:title="@string/silent_operations_title" />
+
+        <EditTextPreference
+            app:iconSpaceReserved="false"
+            android:dialogLayout="@layout/pref_dialog_edit_password"
+            android:dialogMessage="@string/disarm_code_hint"
+            android:key="disarm_code"
+            android:summary="@string/disarm_code_summary"
+            android:title="@string/disarm_code_title" />
+
+        <EditTextPreference
+            app:iconSpaceReserved="false"
+            android:dialogLayout="@layout/pref_dialog_edit_password"
+            android:dialogMessage="@string/panic_code_hint"
+            android:key="panic_code"
+            android:summary="@string/panic_code_summary"
+            android:title="@string/panic_code_title" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        android:title="@string/media_display">
+        <SwitchPreference
+            app:iconSpaceReserved="false"
+            android:defaultValue="false"
+            android:key="audio_spectrogram_enabled"
+            android:summary="@string/audio_spectrogram_summary"
+            android:title="@string/audio_spectrogram_title" />
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -120,15 +219,42 @@
             android:title="@string/reset_signal_configuration" />
 
     </PreferenceCategory>
+
     <PreferenceCategory
         app:iconSpaceReserved="false"
-        android:title="@string/hearbeat_monitor">
+        android:title="@string/telegram_notifications">
+        <SwitchPreference
+            app:iconSpaceReserved="false"
+            android:defaultValue="false"
+            android:key="telegram_enabled"
+            android:summary="@string/telegram_enabled_summary"
+            android:title="@string/telegram_enabled_title" />
+
+        <EditTextPreference
+            app:iconSpaceReserved="false"
+            android:dialogLayout="@layout/pref_dialog_edit_text"
+            android:dialogMessage="@string/telegram_bot_token_desc"
+            android:key="telegram_bot_token"
+            android:summary="@string/telegram_bot_token_desc"
+            android:title="@string/telegram_bot_token" />
+
+        <EditTextPreference
+            app:iconSpaceReserved="false"
+            android:dialogLayout="@layout/pref_dialog_edit_text"
+            android:dialogMessage="@string/telegram_chat_id_desc"
+            android:key="telegram_chat_id"
+            android:summary="@string/telegram_chat_id_desc"
+            android:title="@string/telegram_chat_id" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        android:title="@string/heartbeat_monitor">
 
         <SwitchPreference
             app:iconSpaceReserved="false"
             android:defaultValue="false"
             android:key="heartbeat_monitor_active"
-            android:title="@string/hearbeat_monitor_enable" />
+            android:title="@string/heartbeat_monitor_enable" />
 
         <EditTextPreference
             app:iconSpaceReserved="false"
@@ -136,17 +262,17 @@
             android:dialogMessage="@string/heartbeat_time_dialog"
             android:inputType="number"
             android:key="heartbeat_monitor_delay"
-            android:summary="@string/hearbeat_monitor_dialog"
-            android:title="@string/hearbeat_monitor_summary"/>
+            android:summary="@string/heartbeat_monitor_dialog"
+            android:title="@string/heartbeat_monitor_summary"/>
 
         <EditTextPreference
             app:iconSpaceReserved="false"
             android:dialogLayout="@layout/pref_dialog_edit_text"
-            android:dialogMessage="@string/hearbeat_message_dialog"
+            android:dialogMessage="@string/heartbeat_message_dialog"
             android:inputType="text"
             android:key="heartbeat_monitor_message"
-            android:title="@string/hearbeat_message_title"
-            android:summary="@string/hearbeat_message_summary" />
+            android:title="@string/heartbeat_message_title"
+            android:summary="@string/heartbeat_message_summary" />
 
     </PreferenceCategory>
     <PreferenceCategory
@@ -176,6 +302,34 @@
             android:key="remote_access_credential"
             android:summary="@string/remote_access_credential_hint"
             android:title="@string/password" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        android:title="@string/device_lockdown">
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="device_policy_airplane"
+            android:summary="@string/device_policy_airplane_summary"
+            android:title="@string/device_policy_airplane_title" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="device_policy_bluetooth"
+            android:summary="@string/device_policy_bluetooth_summary"
+            android:title="@string/device_policy_bluetooth_title" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="device_policy_nfc"
+            android:summary="@string/device_policy_nfc_summary"
+            android:title="@string/device_policy_nfc_title" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="device_policy_usb"
+            android:summary="@string/device_policy_usb_summary"
+            android:title="@string/device_policy_usb_title" />
     </PreferenceCategory>
 
 </PreferenceScreen>

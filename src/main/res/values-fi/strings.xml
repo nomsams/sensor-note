@@ -76,9 +76,9 @@
     <string name="event_deleted">Tapahtuma poistettu</string>
     <string name="remove_all_logs">Poista kaikki logit</string>
     <string name="events_deleted">Tapahtumat poistettu</string>
-    <string name="hearbeat_message_summary">Aseta mukautetun viestin teksti</string>
-    <string name="hearbeat_message_summary_on">Mukautetut hälytykset käytössä</string>
-    <string name="hearbeat_monitor_initial_message_2">minuutti(a) Haven on aktiivinen ja tarkkailee.</string>
+    <string name="heartbeat_message_summary">Aseta mukautetun viestin teksti</string>
+    <string name="heartbeat_message_summary_on">Mukautetut hälytykset käytössä</string>
+    <string name="heartbeat_monitor_initial_message_2">minuutti(a) Haven on aktiivinen ja tarkkailee.</string>
     <string name="battery_level_msg_text">Akun taso</string>
     <string name="config_storage_path">Tallennuskansion polku</string>
     <string name="config_storage_page_hint">Minne tallennettu media tallennetaan</string>

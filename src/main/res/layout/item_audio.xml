@@ -18,12 +18,25 @@
         <include
             layout="@layout/item_header" />
 
-        <com.github.derlio.waveform.SimpleWaveformView
-            android:id="@+id/item_sound"
+        <FrameLayout
+            android:id="@+id/item_visualization_container"
             android:layout_width="match_parent"
-            android:layout_height="144dp"
-            app:indicatorColor="@color/colorPrimaryDark"
-            app:waveformColor="@color/colorAccent" />
+            android:layout_height="144dp">
+
+
+            <com.github.derlio.waveform.SimpleWaveformView
+                android:id="@+id/item_sound"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:indicatorColor="@color/colorPrimaryDark"
+                app:waveformColor="@color/colorAccent" />
+
+            <org.havenapp.main.ui.viewholder.SpectrogramView
+                android:id="@+id/item_spectrogram"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+        </FrameLayout>
 
         <LinearLayout
             android:id="@+id/item_player_container"

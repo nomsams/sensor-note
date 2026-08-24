@@ -14,8 +14,10 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class AudioCodec {
-	
-	private AudioRecord recorder = null;
+
+    private static final int SAMPLE_BUFFER_SIZE = 8192;
+
+    private AudioRecord recorder = null;
 	private int minSize;
 
 	/**
@@ -29,13 +31,13 @@ public class AudioCodec {
 					44100,
 					AudioFormat.CHANNEL_IN_DEFAULT,
 					AudioFormat.ENCODING_PCM_16BIT);
-            Log.e("AudioCodec", "Minimum size is " + minSize);
+            Log.d("AudioCodec", "Minimum buffer size is "+ minSize);
 			recorder = new AudioRecord(
 					MediaRecorder.AudioSource.MIC,
 					44100,
 					AudioFormat.CHANNEL_IN_DEFAULT,
 					AudioFormat.ENCODING_PCM_16BIT,
-					minSize);
+			Math.max(SAMPLE_BUFFER_SIZE, minSize));
 
 			recorder.startRecording();
 		}
@@ -47,16 +49,16 @@ public class AudioCodec {
 	 */
     public short[] getAmplitude() {
     	if (recorder != null) {
-    		short[] buffer = new short[8192];
+            short[] buffer = new short[SAMPLE_BUFFER_SIZE];
             int readBytes = 0;
-            while (readBytes < 8192) {
-                readBytes += recorder.read(buffer, readBytes, 8192-readBytes);
+            while (readBytes < SAMPLE_BUFFER_SIZE) {
+                readBytes += recorder.read(buffer, readBytes, SAMPLE_BUFFER_SIZE - readBytes);
             }
 
-            short[] copyToReturn = Arrays.copyOf(buffer, 512);
-            Arrays.sort(buffer);
-            Log.e("AudioCodec", "Recorder has read: " + readBytes + " the maximum is: " +
-                    buffer[minSize-1]);
+            short[] copyToReturn = Arrays.copyOf(buffer, SAMPLE_BUFFER_SIZE);
+
+            Log.d("AudioCodec", "Recorder has read: "+ readBytes + "bytes");
+
 
     		return copyToReturn;
     	}

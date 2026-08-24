@@ -31,9 +31,9 @@ public class MicSamplerTask extends AsyncTask<Void,Object,Void> {
 		this.listener = listener;
 	}
 	
-	protected Void onPreExecute(Void...params) {
-		return null;
-	}
+	@Override
+    protected void onPreExecute() {
+    }
 
 	@Override
 	protected Void doInBackground(Void... params) {
@@ -49,7 +49,7 @@ public class MicSamplerTask extends AsyncTask<Void,Object,Void> {
 			return null;
 		}
 		
-		while (true) {
+		while (!isCancelled()) {
 
 			if (listener != null) {
 				Log.d("MicSamplerTask", "Requesting amplitude");
@@ -67,7 +67,7 @@ public class MicSamplerTask extends AsyncTask<Void,Object,Void> {
 				volumeMeter.stop();
 				sampling = false;
 			}
-			while (paused) {
+			while (paused && !isCancelled()) {
 				try {
 					Thread.sleep(500);
 				} catch (InterruptedException e) {

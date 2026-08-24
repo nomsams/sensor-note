@@ -83,6 +83,8 @@ public class HavenApp extends MultiDexApplication {
         dataBaseInstance = HavenEventDB.getDatabase(this);
 
         JobManager.create(this).addJobCreator(new HavenJobCreator());
+
+        org.havenapp.main.service.ArmControlReceiver.show(this);
     }
 
 

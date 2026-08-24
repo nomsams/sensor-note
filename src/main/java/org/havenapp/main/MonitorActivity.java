@@ -364,7 +364,11 @@ public class MonitorActivity extends AppCompatActivity implements TimePickerDial
         }
 
         //Do something after 100ms
-        startService(new Intent(MonitorActivity.this, MonitorService.class));
+        if (Build.VERSION.SDK_INT >= 26) {
+            startForegroundService(new Intent(MonitorActivity.this, MonitorService.class));
+        } else {
+            startService(new Intent(MonitorActivity.this, MonitorService.class));
+        }
 
     }
 
