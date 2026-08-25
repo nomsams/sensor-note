@@ -38,16 +38,35 @@ class SensorFeatureWindow(
 
     private val channels = List(featureCount) { ChannelWindow() }
     val names: List<String> = List(featureCount) { channel ->
-        listOf("mean", "std", "max", "min").map { suffix -> "sensor${channel + 1}_$suffix" }
+        listOf(\"mean\", \"std\", \"max\", \"min\").map { suffix -> \"sensor\_\\" }
     }.flatten()
 
     @Synchronized
     fun observe(timestamp: Long, sensorIndex: Int, value: Double): FeatureVector? {
         require(sensorIndex in channels.indices)
         val cutoff = timestamp - windowMillis
-        channels.forEach { it.add(Sample(timestamp, doubleArrayOf(value)), cutoff) }
+        // Add to the specific channel
+        channels[sensorIndex].add(Sample(timestamp, doubleArrayOf(value)), cutoff)
+        
+        // Also add to other channels with zero to maintain synchronization
+        for (i in channels.indices) {
+            if (i != sensorIndex) {
+                channels[i].add(Sample(timestamp, doubleArrayOf(0.0)), cutoff)
+            }
+        }
+        
         val all = channels.map { it.features(timestamp) }
         if (all.any { it.isEmpty() }) return null
         return FeatureVector(timestamp, all.flatten().toDoubleArray())
+    }
+    
+    /**
+     * Add a value to a specific sensor channel
+     */
+    @Synchronized
+    fun add(sensorIndex: Int, value: Double) {
+        val timestamp = System.currentTimeMillis()
+        val cutoff = timestamp - windowMillis
+        channels[sensorIndex].add(Sample(timestamp, doubleArrayOf(value)), cutoff)
     }
 }

@@ -224,5 +224,7 @@
     <string name="saved">Saved</string>
     <string name="microphone_permission_required">Microphone permission is required for filter preview</string>
     <string name="timeline_summary_mode">Summary mode</string>
-    <string name="timeline_event_mode">Event mode</string>
+    <string name="timeline_event_mode">Event mode</string>\n    <string name="runtime_log_title">Runtime Log</string>\n    <string name="anomaly_chart_title">Anomaly Chart (Outside Zone vs Time)</string>
 </resources>
+
+

@@ -18,10 +18,10 @@ import org.havenapp.main.PreferenceManager;
 import org.havenapp.main.R;
 
 public class ArmControlReceiver extends BroadcastReceiver {
-    public static final String ACTION_DISARM = "org.havenapp.main.ACTION_DISARM";
-    public static final String ACTION_ARM = "org.havenapp.main.ACTION_ARM";
-    public static final String EXTRA_CODE = "code";
-    private static final String CHANNEL_ID = "haven_arm_control";
+    public static final String ACTION_DISARM = \"org.havenapp.main.ACTION_DISARM\";
+    public static final String ACTION_ARM = \"org.havenapp.main.ACTION_ARM\";
+    public static final String EXTRA_CODE = \"code\";
+    private static final String CHANNEL_ID = \"haven_arm_control\";
     private static final int NOTIFICATION_ID = 2001;
 
     @Override
@@ -30,12 +30,17 @@ public class ArmControlReceiver extends BroadcastReceiver {
         String action = intent.getAction();
 
         if (ACTION_DISARM.equals(action)) {
-            String expected = preferences.getDisarmCode();
-            String panicCode = preferences.getPanicCode();
-            String provided = RemoteInput.getResultsFromIntent(intent)
-                    .getCharSequence(EXTRA_CODE, "").toString();
+            // Null-safe RemoteInput handling
+            String provided = \"\";
+            if (intent.getExtras() != null) {
+                CharSequence remoteInput = RemoteInput.getResultsFromIntent(intent).getCharSequence(EXTRA_CODE);
+                if (remoteInput != null) {
+                    provided = remoteInput.toString();
+                }
+            }
 
-            if (!panicCode.isEmpty() && panicCode.equals(provided)) {
+            // Verify panic code (constant-time comparison with hash)
+            if (preferences.verifyPanicCode(provided)) {
                 preferences.setPendingArmRequest(false);
                 SecureCaptureService.startEvidenceCapture(context);
                 schedule(context, armPendingIntent(context), 3_000L);
@@ -44,12 +49,15 @@ public class ArmControlReceiver extends BroadcastReceiver {
                 return;
             }
 
-            if (expected.isEmpty() || !expected.equals(provided)) {
+            // Verify disarm code (constant-time comparison with hash)
+            // Check if disarm code is configured by attempting verification with empty string
+            boolean hasDisarmCode = !preferences.verifyDisarmCode(\"__HAS_CODE_CHECK__\");
+            if (!preferences.verifyDisarmCode(provided)) {
                 SecureCaptureService.startEvidenceCapture(context);
                 updateNotification(context, false,
-                        context.getString(expected.isEmpty()
-                                ? R.string.disarm_code_not_configured
-                                : R.string.disarm_invalid_code));
+                        context.getString(hasDisarmCode
+                                ? R.string.disarm_invalid_code
+                                : R.string.disarm_code_not_configured));
                 return;
             }
             preferences.setPendingArmRequest(true);
@@ -57,10 +65,14 @@ public class ArmControlReceiver extends BroadcastReceiver {
             SecureCaptureService.startEvidenceCapture(context);
             schedule(context, armPendingIntent(context), 15_000L);
             updateNotification(context, false,
-                    context.getString(R.string.disarm_sequence_running).replace("Disarmed.", "Disarmed!"));
+                    context.getString(R.string.disarm_sequence_running).replace(\"Disarmed.\", \"Disarmed!\"));
         } else if (ACTION_ARM.equals(action)) {
             preferences.setPendingArmRequest(false);
-            context.startForegroundService(new Intent(context, MonitorService.class));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(new Intent(context, MonitorService.class));
+            } else {
+                context.startService(new Intent(context, MonitorService.class));
+            }
             schedule(context, newClusterPendingIntent(context), 30_000L);
             updateNotification(context, true, context.getString(R.string.arming_in_30_seconds));
         }
@@ -75,26 +87,47 @@ public class ArmControlReceiver extends BroadcastReceiver {
 
     private static void schedule(Context context, PendingIntent pendingIntent, long delayMillis) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + delayMillis, pendingIntent);
+        if (alarmManager != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                // Android 12+ exact alarm permission required
+                if (alarmManager.canScheduleExactAlarms()) {
+                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                            SystemClock.elapsedRealtime() + delayMillis, pendingIntent);
+                } else {
+                    alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                            SystemClock.elapsedRealtime() + delayMillis, pendingIntent);
+                }
+            } else {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        SystemClock.elapsedRealtime() + delayMillis, pendingIntent);
+            }
+        }
     }
 
     private static PendingIntent armPendingIntent(Context context) {
         Intent intent = new Intent(context, ArmControlReceiver.class).setAction(ACTION_ARM);
-        return PendingIntent.getBroadcast(context, 2002, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            flags |= PendingIntent.FLAG_MUTABLE;
+        }
+        return PendingIntent.getBroadcast(context, 2002, intent, flags);
     }
 
     private static PendingIntent newClusterPendingIntent(Context context) {
-        return PendingIntent.getForegroundService(context, 2003,
-                new Intent(context, MonitorService.class),
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        Intent intent = new Intent(context, MonitorService.class);
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // For foreground service on Android 12+
+            return PendingIntent.getForegroundService(context, 2003, intent, flags);
+        } else {
+            return PendingIntent.getService(context, 2003, intent, flags);
+        }
     }
 
     private static void updateNotification(Context context, boolean armed, String message) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_stat_haven)
-                .setContentTitle("Haven " + (armed ? "ARMED" : "DISARMED"))
+                .setContentTitle(\"Haven \" + (armed ? \"ARMED\" : \"DISARMED\"))
                 .setContentText(message)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
@@ -105,8 +138,8 @@ public class ArmControlReceiver extends BroadcastReceiver {
         if (new PreferenceManager(context).getSilentOperations()) {
             builder.setSilent(true).setPublicVersion(new NotificationCompat.Builder(context, CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_stat_haven)
-                    .setContentTitle("Sync")
-                    .setContentText("Completed")
+                    .setContentTitle(\"Sync\")
+                    .setContentText(\"Completed\")
                     .build());
         }
 
@@ -114,8 +147,11 @@ public class ArmControlReceiver extends BroadcastReceiver {
             RemoteInput remoteInput = new RemoteInput.Builder(EXTRA_CODE)
                     .setLabel(context.getString(R.string.disarm_action)).build();
             Intent intent = new Intent(context, ArmControlReceiver.class).setAction(ACTION_DISARM);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 2004, intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                flags |= PendingIntent.FLAG_MUTABLE;
+            }
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 2004, intent, flags);
             NotificationCompat.Action action = new NotificationCompat.Action.Builder(
                     0, context.getString(R.string.disarm_action), pendingIntent)
                     .addRemoteInput(remoteInput)
@@ -125,20 +161,24 @@ public class ArmControlReceiver extends BroadcastReceiver {
             builder.addAction(0, context.getString(R.string.arm_action), armPendingIntent(context));
         }
 
-        ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE))
-                .notify(NOTIFICATION_ID, builder.build());
+        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (manager != null) {
+            manager.notify(NOTIFICATION_ID, builder.build());
+        }
     }
 
     private static void createChannel(Context context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
         NotificationChannel channel = new NotificationChannel(
-                CHANNEL_ID, "Arm control", NotificationManager.IMPORTANCE_HIGH);
+                CHANNEL_ID, \"Arm control\", NotificationManager.IMPORTANCE_HIGH);
         channel.setSound(null, null);
         channel.enableVibration(false);
         channel.enableLights(false);
         channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-        ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE))
-                .createNotificationChannel(channel);
+        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (manager != null) {
+            manager.createNotificationChannel(channel);
+        }
     }
 
     private static void sendPanicAlert(Context context) {

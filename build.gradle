@@ -1,18 +1,20 @@
 plugins {
-    id 'com.android.application' apply from: ""
-    id 'kotlin-android' apply from: ""
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
 }
 
 repositories {
     google()
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 allprojects {
     project.ext {
         version_number = getVersionName()
-        group_info = "haven"
-        buildToolsVersion = "34.0.0"
+        group_info = 'haven'
+        buildToolsVersion = '34.0.0'
         minSdkVersion = 16
         targetSdkVersion = 34
     }
@@ -20,10 +22,10 @@ allprojects {
 
 android {
     compileSdkVersion 34
-    buildToolsVersion "34.0.0"
+    buildToolsVersion '34.0.0'
 
     defaultConfig {
-        applicationId "org.havenapp.main"
+        applicationId 'org.havenapp.main'
         versionCode 2001
         versionName getVersionName()
         minSdkVersion 16
@@ -37,7 +39,7 @@ android {
         }
 
         kotlinOptions {
-            jvmTarget = "17"
+            jvmTarget = '17'
         }
     }
 
@@ -46,30 +48,66 @@ android {
             minifyEnabled false
         }
     }
+
+    namespace 'org.havenapp.main'
+
+    packagingOptions {
+        resources.excludes.add('META-INF/*')
+    }
 }
 
 dependencies {
-    implementation "androidx.appcompat:appcompat:1.6.1"
-    implementation "androidx.constraintlayout:constraintlayout:2.1.4"
-    implementation "androidx.preference:preference-ktx:1.2.0"
-    implementation "androidx.multidex:multidex:2.0.1"
-    implementation "androidx.annotation:annotation:1.6.0"
-    implementation "com.google.android.material:material:1.10.0"
-    implementation "com.google.code.gson:2.10.1"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.8.0"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.8.0"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.0"
-    implementation "com.squareup.okhttp3:okhttp:4.9.3"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0"
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.preference:preference-ktx:1.2.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'androidx.annotation:annotation:1.6.0'
+    implementation 'com.google.android.material:material:1.10.0'
+    implementation 'com.google.code.gson:2.10.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.0'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.8.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0'
 
     // Room
-    implementation "androidx.room:room-runtime:2.8.1"
-    kapt "androidx.room:room-compiler:2.8.1"
-    implementation "androidx.room:room-ktx:2.8.1"
+    implementation 'androidx.room:room-runtime:2.8.1'
+    kapt 'androidx.room:room-compiler:2.8.1'
+    implementation 'androidx.room:room-ktx:2.8.1'
 
-    implementation "androidx.lifecycle:lifecycle-extensions:2.8.0"
-    implementation "androidx.lifecycle:lifecycle-common-java8:2.3.1"
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.8.0'
+    implementation 'androidx.lifecycle:lifecycle-common-java8:2.3.1'
 
     // Camera/sensor (Central-only)
-    implementation "com.otaliastudios:cameraview:2.6.4"
+    implementation 'com.otaliastudios:cameraview:2.6.4'
+
+    // CameraX for SecureCaptureService
+    def camerax_version = '1.3.4'
+    implementation \"androidx.camera:camera-core:\\"
+    implementation \"androidx.camera:camera-camera2:\\"
+    implementation \"androidx.camera:camera-lifecycle:\\"
+    implementation \"androidx.camera:camera-view:\\"
+    implementation \"androidx.camera:camera-video:\\"
+
+    // WorkManager for background tasks
+    def work_version = '2.9.0'
+    implementation \"androidx.work:work-runtime-ktx:\\"
+
+    // Security / Encryption
+    implementation 'androidx.security:security-crypto:1.1.0-alpha06'
+    implementation 'androidx.biometric:biometric:1.2.0-alpha05'
+
+    // Notification
+    implementation 'androidx.core:core:1.13.1'
+
+    // For charting (outside-zone vs time)
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
+    // Testing
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:5.8.0'
+    testImplementation 'org.robolectric:robolectric:4.11'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.room:room-testing:2.8.1'
 }

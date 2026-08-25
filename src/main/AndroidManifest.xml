@@ -1,161 +1,184 @@
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"
+    xmlns:tools=\"http://schemas.android.com/tools\">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name=\"android.permission.INTERNET\" />
+    <uses-permission android:name=\"android.permission.CAMERA\" />
+    <uses-permission android:name=\"android.permission.RECORD_AUDIO\" />
+    <uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" />
+    <uses-permission android:name=\"android.permission.FOREGROUND_SERVICE\" />
+    <uses-permission android:name=\"android.permission.FOREGROUND_SERVICE_CAMERA\" />
+    <uses-permission android:name=\"android.permission.FOREGROUND_SERVICE_MICROPHONE\" />
+    <uses-permission android:name=\"android.permission.FOREGROUND_SERVICE_LOCATION\" />
+    <uses-permission android:name=\"android.permission.FOREGROUND_SERVICE_SENSORS\" />
+    <uses-permission android:name=\"android.permission.POST_NOTIFICATIONS\" />
+    <uses-permission android:name=\"android.permission.BIND_DEVICE_ADMIN\" />
+    <uses-permission android:name=\"android.permission.CHANGE_WIFI_STATE\" />
+    <uses-permission android:name=\"android.permission.NFC\" />
 
     <uses-feature
-        android:name="android.hardware.camera"
-        android:required="false" />
+        android:name=\"android.hardware.camera\"
+        android:required=\"false\" />
     <uses-feature
-        android:name="android.hardware.camera.autofocus"
-        android:required="false" />
+        android:name=\"android.hardware.camera.autofocus\"
+        android:required=\"false\" />
     <uses-feature
-        android:name="android.hardware.telephony"
-        android:required="false" />
+        android:name=\"android.hardware.telephony\"
+        android:required=\"false\" />
     <uses-feature
-        android:name="android.hardware.microphone"
-        android:required="false" />
-    <!--
-         Some Chromebooks don't support touch. Although not essential,
-            it's a good idea to explicitly include this declaration.
-    -->
+        android:name=\"android.hardware.microphone\"
+        android:required=\"false\" />
     <uses-feature
-        android:name="android.hardware.touchscreen"
-        android:required="false" />
+        android:name=\"android.hardware.touchscreen\"
+        android:required=\"false\" />
 
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
-    <uses-permission android:name="android.permission.SEND_SMS" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name=\"android.permission.WAKE_LOCK\" />
+    <uses-permission android:name=\"android.permission.READ_PHONE_STATE\" />
+    <uses-permission android:name=\"android.permission.READ_EXTERNAL_STORAGE\" />
+    <uses-permission android:name=\"android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS\" />
+    <uses-permission android:name=\"android.permission.SEND_SMS\" />
+    <uses-permission android:name=\"android.permission.BLUETOOTH\" />
+    <uses-permission android:name=\"android.permission.BLUETOOTH_CONNECT\" />
+    <uses-permission android:name=\"android.permission.SCHEDULE_EXACT_ALARM\" />
 
     <application
-        android:name=".HavenApp"
-        android:allowBackup="false"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:largeHeap="true"
-        android:theme="@style/AppTheme"
-        android:fullBackupContent="@xml/backup_config"
-        android:supportsRtl="false"
-        tools:replace="android:allowBackup,android:supportsRtl"
-        tools:ignore="GoogleAppIndexingWarning"
-        android:requestLegacyExternalStorage="true">
+        android:name=\".HavenApp\"
+        android:allowBackup=\"false\"
+        android:icon=\"@mipmap/ic_launcher\"
+        android:label=\"@string/app_name\"
+        android:largeHeap=\"true\"
+        android:theme=\"@style/AppTheme\"
+        android:fullBackupContent=\"@xml/backup_config\"
+        android:supportsRtl=\"false\"
+        tools:replace=\"android:allowBackup,android:supportsRtl\"
+        tools:ignore=\"GoogleAppIndexingWarning\"
+        android:requestLegacyExternalStorage=\"true\">
         <activity
-            android:name=".ListActivity"
-            android:exported="true"
-            android:configChanges="orientation|screenSize"
-            android:label="@string/title_activity_start"
-            android:windowSoftInputMode="stateHidden">
+            android:name=\".ListActivity\"
+            android:exported=\"true\"
+            android:configChanges=\"orientation|screenSize\"
+            android:label=\"@string/title_activity_start\"
+            android:windowSoftInputMode=\"stateHidden\">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name=\"android.intent.action.MAIN\" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name=\"android.intent.category.LAUNCHER\" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".SettingsActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="@string/settings"
-            android:theme="@style/SettingsTheme" />
+            android:name=\".SettingsActivity\"
+            android:configChanges=\"orientation|screenSize\"
+            android:label=\"@string/settings\"
+            android:theme=\"@style/SettingsTheme\" />
         <activity
-            android:name=".ui.PPAppIntro"
-            android:screenOrientation="fullUser" />
+            android:name=\".ui.PPAppIntro\"
+            android:screenOrientation=\"fullUser\" />
         <activity
-            android:name=".MonitorActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="fullUser"
-            android:launchMode="singleTop"
-            android:resizeableActivity="true"
-            android:supportsPictureInPicture="true"
+            android:name=\".MonitorActivity\"
+            android:label=\"@string/app_name\"
+            android:screenOrientation=\"fullUser\"
+            android:launchMode=\"singleTop\"
+            android:resizeableActivity=\"true\"
+            android:supportsPictureInPicture=\"true\"
             android:configChanges=
-                "screenSize|smallestScreenSize|screenLayout|orientation"
+                \"screenSize|smallestScreenSize|screenLayout|orientation\"
             />
         <activity
-            android:name=".ui.VideoPlayerActivity"
-            android:configChanges="orientation|keyboardHidden|screenLayout|screenSize"
-            android:label="@string/title_activity_video_player"
-            android:theme="@style/AppTheme" />
+            android:name=\".ui.VideoPlayerActivity\"
+            android:configChanges=\"orientation|keyboardHidden|screenLayout|screenSize\"
+            android:label=\"@string/title_activity_video_player\"
+            android:theme=\"@style/AppTheme\" />
 
         <service
-            android:name=".service.MonitorService"
-            android:exported="false" />
+            android:name=\".service.MonitorService\"
+            android:exported=\"false\"
+            android:foregroundServiceType=\"camera|microphone|location|sensors\" />
 
-        <service android:name=".service.RemoveDeletedFilesJob"
-            android:exported="false" />
+        <service android:name=\".service.RemoveDeletedFilesJob\"
+            android:exported=\"false\" />
 
         <service
-            android:name=".service.SecureCaptureService"
-            android:exported="false" />
+            android:name=\".service.SecureCaptureService\"
+            android:exported=\"false\"
+            android:foregroundServiceType=\"camera|microphone\" />
 
         <receiver
-            android:name=".service.ArmControlReceiver"
-            android:exported="false" />
-
-        <meta-data
-            android:name="DATABASE"
-            android:value="haven.db" />
-        <meta-data
-            android:name="VERSION"
-            android:value="5" />
-        <meta-data
-            android:name="QUERY_LOG"
-            android:value="true" />
-        <meta-data
-            android:name="DOMAIN_PACKAGE_NAME"
-            android:value="org.havenapp.main.model" />
-
-        <activity
-            android:name=".ui.EventActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="@string/title_activity_event"
-            android:theme="@style/AppTheme" />
-        <activity
-            android:name=".ui.MicrophoneConfigureActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden" />
-        <activity
-            android:name=".ui.AudioFilterTunerActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden" />
-        <activity
-            android:name=".ui.AnomalyMapActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden" />
-        <activity
-            android:name=".ui.RuntimeLogActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden" />
-        <activity
-            android:name=".ui.AccelConfigureActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden" />
-        <activity
-            android:name=".ui.CameraConfigureActivity"
-            android:screenOrientation="fullUser"
-            android:configChanges="orientation|screenSize|keyboardHidden" />
+            android:name=\".service.ArmControlReceiver\"
+            android:exported=\"false\" />
 
         <receiver
-            android:name=".sensors.PowerConnectionReceiver"
-            android:enabled="true"
-            android:exported="true">
+            android:name=\".service.DeviceAdminReceiver\"
+            android:exported=\"true\"
+            android:permission=\"android.permission.BIND_DEVICE_ADMIN\">
+            <meta-data
+                android:name=\"android.app.device_admin\"
+                android:resource=\"@xml/device_admin_receiver\" />
             <intent-filter>
-                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
-                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+                <action android:name=\"android.app.action.DEVICE_ADMIN_ENABLED\" />
+                <action android:name=\"android.app.action.DEVICE_ADMIN_DISABLED\" />
+                <action android:name=\"android.app.action.DEVICE_ADMIN_DISABLE_REQUESTED\" />
+            </intent-filter>
+        </receiver>
+
+        <meta-data
+            android:name=\"DATABASE\"
+            android:value=\"haven.db\" />
+        <meta-data
+            android:name=\"VERSION\"
+            android:value=\"5\" />
+        <meta-data
+            android:name=\"QUERY_LOG\"
+            android:value=\"true\" />
+        <meta-data
+            android:name=\"DOMAIN_PACKAGE_NAME\"
+            android:value=\"org.havenapp.main.model\" />
+
+        <activity
+            android:name=\".ui.EventActivity\"
+            android:configChanges=\"orientation|screenSize\"
+            android:label=\"@string/title_activity_event\"
+            android:theme=\"@style/AppTheme\" />
+        <activity
+            android:name=\".ui.MicrophoneConfigureActivity\"
+            android:configChanges=\"orientation|screenSize|keyboardHidden\" />
+        <activity
+            android:name=\".ui.AudioFilterTunerActivity\"
+            android:configChanges=\"orientation|screenSize|keyboardHidden\" />
+        <activity
+            android:name=\".ui.AnomalyMapActivity\"
+            android:configChanges=\"orientation|screenSize|keyboardHidden\" />
+        <activity
+            android:name=\".ui.AnomalyChartActivity\"
+            android:configChanges=\"orientation|screenSize|keyboardHidden\" />
+        <activity
+            android:name=\".ui.RuntimeLogActivity\"
+            android:configChanges=\"orientation|screenSize|keyboardHidden\" />
+        <activity
+            android:name=\".ui.AccelConfigureActivity\"
+            android:configChanges=\"orientation|screenSize|keyboardHidden\" />
+        <activity
+            android:name=\".ui.CameraConfigureActivity\"
+            android:screenOrientation=\"fullUser\"
+            android:configChanges=\"orientation|screenSize|keyboardHidden\" />
+
+        <receiver
+            android:name=\".sensors.PowerConnectionReceiver\"
+            android:enabled=\"true\"
+            android:exported=\"true\">
+            <intent-filter>
+                <action android:name=\"android.intent.action.ACTION_POWER_CONNECTED\" />
+                <action android:name=\"android.intent.action.ACTION_POWER_DISCONNECTED\" />
             </intent-filter>
         </receiver>
 
         <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="org.havenapp.main.fileprovider"
-            android:grantUriPermissions="true"
-            android:exported="false">
+            android:name=\"androidx.core.content.FileProvider\"
+            android:authorities=\"org.havenapp.main.fileprovider\"
+            android:grantUriPermissions=\"true\"
+            android:exported=\"false\">
             <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_provider_paths"
+                android:name=\"android.support.FILE_PROVIDER_PATHS\"
+                android:resource=\"@xml/file_provider_paths\"
                 />
         </provider>
 

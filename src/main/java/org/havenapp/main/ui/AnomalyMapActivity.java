@@ -10,7 +10,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import org.havenapp.main.R;
+import org.havenapp.main.anomaly.AnomalyDataStore;
 import org.havenapp.main.anomaly.AnomalyPoint;
+import org.havenapp.main.anomaly.AnomalySummaryBucket;
+import org.havenapp.main.service.MonitorService;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,13 +28,18 @@ public class AnomalyMapActivity extends AppCompatActivity {
     private List<AnomalyPoint> points = new ArrayList<>();
     private boolean playing;
     private int playbackIndex;
+    private AnomalyDataStore dataStore;
+    private long sessionStartTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_anomaly_map);
-        setSupportActionBar(findViewById(R.id.toolbar));
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         ellipseView = findViewById(R.id.ellipse_view);
         details = findViewById(R.id.point_details);
@@ -40,9 +48,14 @@ public class AnomalyMapActivity extends AppCompatActivity {
         Button play = findViewById(R.id.button_play);
         SeekBar threshold = findViewById(R.id.threshold_seek);
 
-        points = loadDemoPoints();
-        ellipseView.setPoints(points);
-        ellipseView.onPointSelected = point -> showDetails(point);
+        // Initialize data store
+        dataStore = new AnomalyDataStore(this);
+        
+        // Get session start time from intent or use current session
+        sessionStartTime = getIntent().getLongExtra(\"session_start\", System.currentTimeMillis() - 3600_000L);
+        
+        // Load real anomaly data
+        loadAnomalyData();
 
         previous.setOnClickListener(view -> seek(playbackIndex - 1));
         next.setOnClickListener(view -> seek(playbackIndex + 1));
@@ -58,14 +71,32 @@ public class AnomalyMapActivity extends AppCompatActivity {
             @Override public void onStartTrackingTouch(SeekBar seekBar) { }
             @Override public void onStopTrackingTouch(SeekBar seekBar) { }
         });
+    }
 
-        seek(points.size() - 1);
+    private void loadAnomalyData() {
+        long endTime = System.currentTimeMillis();
+        dataStore.getPoints(sessionStartTime, endTime, loadedPoints -> {
+            runOnUiThread(() -> {
+                points = loadedPoints;
+                if (points.isEmpty()) {
+                    // Fallback to demo points if no real data
+                    points = loadDemoPoints();
+                }
+                ellipseView.setPoints(points);
+                ellipseView.onPointSelected = this::showDetails;
+                seek(points.size() - 1);
+            });
+        });
     }
 
     private void advance() {
         if (!playing || points.isEmpty()) return;
         if (playbackIndex + 1 >= points.size()) {
             playing = false;
+            runOnUiThread(() -> {
+                Button play = findViewById(R.id.button_play);
+                play.setText(R.string.play);
+            });
             return;
         }
         seek(playbackIndex + 1);
@@ -81,9 +112,11 @@ public class AnomalyMapActivity extends AppCompatActivity {
     private void showDetails(AnomalyPoint point) {
         if (point == null) return;
         String time = SimpleDateFormat.getDateTimeInstance().format(new Date(point.timestamp));
-        details.setText(String.format(Locale.US,
-                "%s\nT² %.3f\n%s", time, point.tSquared,
-                getString(point.anomaly ? R.string.outside_safe_zone : R.string.inside_safe_zone)));
+        runOnUiThread(() -> {
+            details.setText(String.format(Locale.US,
+                    \"%s\nT² %.3f\n%s\", time, point.tSquared,
+                    getString(point.anomaly ? R.string.outside_safe_zone : R.string.inside_safe_zone)));
+        });
     }
 
     private List<AnomalyPoint> loadDemoPoints() {
@@ -98,5 +131,13 @@ public class AnomalyMapActivity extends AppCompatActivity {
             result.add(new AnomalyPoint(now + index * 700L, x, y, distance, distance > 1.5));
         }
         return result;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (dataStore != null) {
+            dataStore.close();
+        }
     }
 }

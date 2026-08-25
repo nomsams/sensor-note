@@ -1,5 +1,6 @@
 package org.havenapp.main.anomaly
 
+import kotlin.math.max
 import kotlin.math.sqrt
 
 class HotellingPcaModel(
