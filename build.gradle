@@ -1,32 +1,13 @@
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:8.3.0'
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.20'
-    }
+plugins {
+    id 'com.android.application' version '8.3.0'
+    id 'kotlin-android' version '1.9.20'
+    id 'kotlin-kapt' version '1.9.20'
 }
-
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
 
 repositories {
     google()
     mavenCentral()
     maven { url 'https://jitpack.io' }
-}
-
-allprojects {
-    project.ext {
-        version_number = getVersionName()
-        group_info = 'haven'
-        buildToolsVersion = '34.0.0'
-        minSdkVersion = 16
-        targetSdkVersion = 34
-    }
 }
 
 android {
@@ -36,9 +17,9 @@ android {
     defaultConfig {
         applicationId 'org.havenapp.main'
         versionCode 2001
-        versionName getVersionName()
+        versionName '2.0.1'
         minSdkVersion 16
-        targetSdkVersion = 34
+        targetSdkVersion 34
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
 
