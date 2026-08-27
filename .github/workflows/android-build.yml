@@ -54,7 +54,7 @@ jobs:
       - name: Verify and hash APK
         run: |
           set -euo pipefail
-          apk=$(find app/build/outputs/apk/debug -maxdepth 1 -name '*.apk' -type f)
+          apk=$(find build/outputs/apk/debug -maxdepth 1 -name '*.apk' -type f)
           test "$(printf '%s\n' "$apk" | wc -l)" -eq 1
           apksigner="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -1)"
           "$apksigner" verify --print-certs "$apk" | tee apksigner-verification.txt
@@ -69,7 +69,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
           path: |
-            app/build/outputs/apk/debug/*.apk
+            build/outputs/apk/debug/*.apk
             build-provenance.txt
             apksigner-verification.txt
             SHA256SUMS.txt
