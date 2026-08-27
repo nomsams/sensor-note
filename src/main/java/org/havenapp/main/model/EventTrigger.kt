@@ -50,7 +50,7 @@ class EventTrigger {
         const val BUMP = 6
 
         /**
-         * Significant motion detected message
+         * Camera video detected message
          */
         const val CAMERA_VIDEO = 7
 

@@ -1,6 +1,7 @@
 package org.havenapp.main.utils;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.Base64;
@@ -14,12 +15,12 @@ import java.security.GeneralSecurityException;
 import java.util.Arrays;
 
 public class CryptoUtils {
-    private static final String TAG = \"CryptoUtils\";
-    private static final String MASTER_KEY_ALIAS = \"haven_master_key\";
-    private static final String ENCRYPTED_PREFS_NAME = \"haven_encrypted_prefs\";
+    private static final String TAG = "CryptoUtils";
+    private static final String MASTER_KEY_ALIAS = "haven_master_key";
+    private static final String ENCRYPTED_PREFS_NAME = "haven_encrypted_prefs";
     
     private static MasterKey masterKey = null;
-    private static EncryptedSharedPreferences encryptedPrefs = null;
+    private static SharedPreferences encryptedPrefs = null;
 
     /**
      * Initialize the master key for encryption
@@ -31,8 +32,8 @@ public class CryptoUtils {
                         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                         .build();
             } catch (GeneralSecurityException | IOException e) {
-                Log.e(TAG, \"Failed to create master key\", e);
-                throw new RuntimeException(\"Failed to initialize encryption\", e);
+                Log.e(TAG, "Failed to create master key", e);
+                throw new RuntimeException("Failed to initialize encryption", e);
             }
         }
         return masterKey;
@@ -41,48 +42,44 @@ public class CryptoUtils {
     /**
      * Get encrypted shared preferences instance
      */
-    public static synchronized EncryptedSharedPreferences getEncryptedPrefs(Context context) {
+    public static synchronized SharedPreferences getEncryptedPrefs(Context context) {
         if (encryptedPrefs == null) {
             try {
                 encryptedPrefs = EncryptedSharedPreferences.create(
+                        context,
                         ENCRYPTED_PREFS_NAME,
                         getMasterKey(context),
-                        context,
                         EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
                         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
                 );
             } catch (GeneralSecurityException | IOException e) {
-                Log.e(TAG, \"Failed to create encrypted prefs\", e);
-                throw new RuntimeException(\"Failed to initialize encrypted preferences\", e);
+                Log.e(TAG, "Failed to create encrypted prefs", e);
+                throw new RuntimeException("Failed to initialize encrypted preferences", e);
             }
         }
         return encryptedPrefs;
+    }
+
+    static void resetEncryptedPrefsForTest() {
+        masterKey = null;
+        encryptedPrefs = null;
     }
 
     /**
      * Store a sensitive string value encrypted
      */
     public static void putEncryptedString(Context context, String key, String value) {
-        try {
-            EncryptedSharedPreferences prefs = getEncryptedPrefs(context);
-            prefs.edit().putString(key, value).apply();
-        } catch (Exception e) {
-            Log.e(TAG, \"Failed to store encrypted string: \" + key, e);
-        }
+            SharedPreferences prefs = getEncryptedPrefs(context);
+            prefs.edit().putString(key, value).commit();
     }
 
     /**
      * Retrieve a sensitive string value encrypted
      */
     public static String getEncryptedString(Context context, String key, String defaultValue) {
-        try {
-            EncryptedSharedPreferences prefs = getEncryptedPrefs(context);
+            SharedPreferences prefs = getEncryptedPrefs(context);
             String value = prefs.getString(key, null);
             return value != null ? value : defaultValue;
-        } catch (Exception e) {
-            Log.e(TAG, \"Failed to retrieve encrypted string: \" + key, e);
-            return defaultValue;
-        }
     }
 
     /**
@@ -90,10 +87,10 @@ public class CryptoUtils {
      */
     public static void removeEncrypted(Context context, String key) {
         try {
-            EncryptedSharedPreferences prefs = getEncryptedPrefs(context);
-            prefs.edit().remove(key).apply();
+            SharedPreferences prefs = getEncryptedPrefs(context);
+            prefs.edit().remove(key).commit();
         } catch (Exception e) {
-            Log.e(TAG, \"Failed to remove encrypted value: \" + key, e);
+            Log.e(TAG, "Failed to remove encrypted value: " + key, e);
         }
     }
 
@@ -119,12 +116,12 @@ public class CryptoUtils {
      */
     public static String hashString(String input) {
         try {
-            java.security.MessageDigest digest = java.security.MessageDigest.getInstance(\"SHA-256\");
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(input.getBytes(java.nio.charset.StandardCharsets.UTF_8));
             return Base64.encodeToString(hash, Base64.NO_WRAP);
         } catch (java.security.NoSuchAlgorithmException e) {
-            Log.e(TAG, \"SHA-256 not available\", e);
-            return \"\";
+            Log.e(TAG, "SHA-256 not available", e);
+            return "";
         }
     }
 }

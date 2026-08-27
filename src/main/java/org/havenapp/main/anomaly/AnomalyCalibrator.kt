@@ -1,7 +1,13 @@
 package org.havenapp.main.anomaly
 
+import kotlin.math.max
+
 class AnomalyCalibrator(private val featureNames: List<String>) {
     private val samples = mutableListOf<DoubleArray>()
+
+    fun clear() {
+        samples.clear()
+    }
 
     @Synchronized
     fun add(values: DoubleArray) {
@@ -12,6 +18,7 @@ class AnomalyCalibrator(private val featureNames: List<String>) {
 
     fun isReady(): Boolean = samples.size >= MINIMUM_CALIBRATION_SAMPLES
 
+    @JvmOverloads
     @Synchronized
     fun calibrate(confidenceScale: Double = 9.21): HotellingPcaModel? {
         if (!isReady()) return null

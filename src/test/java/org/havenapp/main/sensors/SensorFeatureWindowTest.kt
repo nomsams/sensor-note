@@ -8,7 +8,7 @@ class SensorFeatureWindowTest {
 
     @Test
     fun testFeatureWindowInitialization() {
-        val window = SensorFeatureWindow(4)
+        val window = SensorFeatureWindow(4, minimumSamples = 1)
         
         assertEquals(4, window.names.size / 4) // 4 features per sensor
         assertEquals(16, window.names.size) // 4 sensors * 4 features
@@ -21,7 +21,7 @@ class SensorFeatureWindowTest {
         // Add fewer than minimum samples
         for (i in 0..5) {
             val vector = window.observe(System.currentTimeMillis(), 0, 1.0)
-            assertNull(\"Should return null before minimum samples\", vector)
+            assertNull("Should return null before minimum samples", vector)
         }
     }
 
@@ -38,13 +38,13 @@ class SensorFeatureWindowTest {
         
         // Now observe should return a feature vector
         val vector = window.observe(System.currentTimeMillis() + 800, 0, 1.0)
-        assertNotNull(\"Should return vector after minimum samples\", vector)
-        assertEquals(16, vector.values.size)
+        assertNotNull("Should return vector after minimum samples", vector)
+        assertEquals(16, vector!!.values.size)
     }
 
     @Test
     fun testAddMethod() {
-        val window = SensorFeatureWindow(4)
+        val window = SensorFeatureWindow(4, minimumSamples = 1)
         
         // Add values to specific channels
         window.add(0, 1.0)

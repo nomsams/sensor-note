@@ -112,17 +112,17 @@ public class SignalSender {
 
     public void startHeartbeatTimer (int countMs)
     {
-        if (countMs <= 10000)
-            countMs = 300000;
+        int durationMs = Math.max(countMs, 300000);
 
-        mCountdownTimer =  new CountDownTimer(countMs,1000) {
+        mCountdownTimer =  new CountDownTimer(durationMs,1000) {
             public void onTick(long millisUntilFinished) {
                 // Log.d("HEARTBEAT MONITOR," seconds remaining: " + millisUntilFinished / 1000);
             }
             public void onFinish() {
                 beatingHeart();
                 // Restart the timer for the next heartbeat
-                startHeartbeatTimer(countMs);
+                startHeartbeatTimer(durationMs);
+            }
         }.start();
 
     }

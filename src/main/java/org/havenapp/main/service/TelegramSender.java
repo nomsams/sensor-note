@@ -26,8 +26,8 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class TelegramSender {
-    private static final String TAG = \"TelegramSender\";
-    private static final String API_BASE = \"https://api.telegram.org/bot\";
+    private static final String TAG = "TelegramSender";
+    private static final String API_BASE = "https://api.telegram.org/bot";
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     private static final OkHttpClient CLIENT = new OkHttpClient.Builder()
             .connectTimeout(15, TimeUnit.SECONDS)
@@ -48,22 +48,22 @@ public class TelegramSender {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
-                Log.w(TAG, \"POST_NOTIFICATIONS permission not granted, skipping Telegram send\");
+            Log.w(TAG, "POST_NOTIFICATIONS permission not granted, skipping Telegram send");
                 return;
             }
         }
 
         String token = preferences.getTelegramBotToken();
         String chatId = preferences.getTelegramChatId();
-        String text = TextUtils.isEmpty(message) ? \"Haven alert\" : message;
+        String text = TextUtils.isEmpty(message) ? "Haven alert" : message;
 
         EXECUTOR.execute(() -> {
             try (Response response = CLIENT.newCall(createRequest(token, chatId, text, attachment)).execute()) {
                 if (!response.isSuccessful()) {
-                    Log.w(TAG, \"Telegram delivery failed: \" + response.code());
+                    Log.w(TAG, "Telegram delivery failed: " + response.code());
                 }
             } catch (IOException exception) {
-                Log.w(TAG, \"Unable to deliver Telegram alert\", exception);
+                Log.w(TAG, "Unable to deliver Telegram alert", exception);
             }
         });
     }
@@ -75,32 +75,32 @@ public class TelegramSender {
             @Nullable File attachment
     ) {
         if (attachment != null && attachment.exists() && attachment.length() > 0) {
-            boolean video = attachment.getName().toLowerCase(Locale.US).endsWith(\".mp4\");
-            String method = video ? \"sendVideo\" : \"sendPhoto\";
+            boolean video = attachment.getName().toLowerCase(Locale.US).endsWith(".mp4");
+            String method = video ? "sendVideo" : "sendPhoto";
             MultipartBody body = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart(\"chat_id\", chatId)
-                    .addFormDataPart(\"caption\", message)
+                    .addFormDataPart("chat_id", chatId)
+                    .addFormDataPart("caption", message)
                     .addFormDataPart(
-                            video ? \"video\" : \"photo\",
+                            video ? "video" : "photo",
                             attachment.getName(),
-                            RequestBody.create(MediaType.parse(\"application/octet-stream\"), attachment)
+                            RequestBody.create(MediaType.parse("application/octet-stream"), attachment)
                     )
                     .build();
-            return new Request.Builder().url(API_BASE + botToken + \"/\" + method).post(body).build();
+            return new Request.Builder().url(API_BASE + botToken + "/" + method).post(body).build();
         }
 
         RequestBody body = RequestBody.create(
-                MediaType.parse(\"application/json; charset=utf-8\"),
-                \"{\\\"chat_id\\\":\\\"\" + escape(chatId) + \"\\\",\\\"text\\\":\\\"\" + escape(message) + \"\\\"}\"
+                MediaType.parse("application/json; charset=utf-8"),
+                "{\"chat_id\":\"" + escape(chatId) + "\",\"text\":\"" + escape(message) + "\"}"
         );
         return new Request.Builder()
-                .url(API_BASE + botToken + \"/sendMessage\")
+                .url(API_BASE + botToken + "/sendMessage")
                 .post(body)
                 .build();
     }
 
     private static String escape(String value) {
-        return value.replace(\"\\\\\", \"\\\\\\\\\").replace(\"\\\"\", \"\\\\\\\"\");
+        return value.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 }

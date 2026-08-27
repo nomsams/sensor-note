@@ -13,7 +13,7 @@
     <string name="title_activity_event">EventActivity</string>
     <string name="action_settings">Configurações</string>
     <string name="intro1_title">Bem vindo ao Havem</string>
-    <string name="intro1_desc">\"Now when the ark of human fate,\nLong baffled by the wayward wind,\nIs drifting with its peopled freight,\nSAFE HAVEN on the height find…\"\n-George Meredith</string>
+    <string name="intro1_desc">"Now when the ark of human fate,\nLong baffled by the wayward wind,\nIs drifting with its peopled freight,\nSAFE HAVEN on the height find…"\n-George Meredith</string>
     <string name="intro2_title">Haven é para pessoas que querem se manter seguros de acessos indesejados em suas casas, escritórios, hotéis e demais espaços privados</string>
     <string name="intro3_desc">Transformar o telefone em um detector de movimentos, sons, vibrações e variações de luzes. E e saber quem são aqueles, que sem sua permissão, tentam saber o que vocês faz</string>
     <string name="intro4_desc">Receber as notificações de intrusão imediatamente e acessar os logs local ou remotamente em um momento posterior</string>

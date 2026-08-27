@@ -16,7 +16,7 @@
     <string name="title_activity_event">Активное событие</string>
     <string name="action_settings">Настройки</string>
     <string name="intro1_title">Добро пожаловать в Haven</string>
-    <string name="intro1_desc">\"Now when the ark of human fate,\nLong baffled by the wayward wind,\nIs drifting with its peopled freight,\nSAFE HAVEN on the heights to find…\"\n-George Meredith</string>
+    <string name="intro1_desc">"Now when the ark of human fate,\nLong baffled by the wayward wind,\nIs drifting with its peopled freight,\nSAFE HAVEN on the heights to find…"\n-George Meredith</string>
     <string name="intro2_title">Haven предназначен для людей, которые хотят следить за проникновением в свой дом, офис, гостиничный номер или другое личное пространство</string>
     <string name="intro3_desc">Превратите дополнительный телефон в детектор движения, звука, вибрации и света, наблюдая за неожиданными гостями и злоумышленниками</string>
     <string name="intro4_desc">Получайте уведомления о проникновениях мгновенно, а также доступ к журналам удаленно или лично позже</string>
@@ -90,7 +90,7 @@
     <string name="camera_sensitivity">Чувствительность камеры</string>
     <string name="notification_time">Интервал между оповещениями</string>
     <string name="notification_time_summary">Оповещать только по истечении заданного времени</string>
-    <string name="notification_time_dialog">Введите время (в минутах) задержки между оповещениями. \"0\" для отправки каждого оповещения.</string>
+    <string name="notification_time_dialog">Введите время (в минутах) задержки между оповещениями. "0" для отправки каждого оповещения.</string>
     <string name="minutes">мин.</string>
     <string name="keep_watch">Будьте начеку!</string>
     <string name="camera_sensitivity_tip">Выберите другую камеру или настройте чувствительность к движениям с помощью слайдера</string>

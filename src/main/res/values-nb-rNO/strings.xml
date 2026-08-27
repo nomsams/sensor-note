@@ -49,16 +49,16 @@
     <string name="secure_service_started">Haven påslått</string>
     <string name="intrusion_detected">En Haven-sensor ble utløst (Type: %s)</string>
     <string name="title_activity_event">Hendelsesaktivitet</string>
-    <string name="intro1_desc">\"Nå når mennesket finner bane i sin sak,
+    <string name="intro1_desc">"Nå når mennesket finner bane i sin sak,
 \nLange furet av vindens tak,
 \nDriver den med menneskene rak,
-\nTRYGG HAVN, i høydenes tak…\"
+\nTRYGG HAVN, i høydenes tak…"
 \n-George Meredith</string>
     <string name="intro2_title">Haven er for folk som ønsker å holde oppsyn med innbrudd i huset sitt, kontoret, hotellrommet, eller et annet privat rom.</string>
     <string name="intro3_desc">Gjør en ekstra telefon til en bevegelses-, lyd-, vibrasjons- og lys-sensor, for å oppdage ubudne gjester og uønskede inntrengere</string>
     <string name="intro4_desc">Få beskjed om innbruddshendelser umiddelbart og se på loggene annensteds fra eller når du kommer tilbake</string>
     <string name="intro5_title">Din Haven er klar</string>
-    <string name="intro5_desc">Aktiver programmet når som helst ved bruk av \"&gt;\"-knappen på hovedskjermen</string>
+    <string name="intro5_desc">Aktiver programmet når som helst ved bruk av "&gt;"-knappen på hovedskjermen</string>
     <string name="camera_front">Forside</string>
     <string name="camera_back">Bakside</string>
     <string name="camera_none">Ingen</string>
@@ -103,7 +103,7 @@
     <string name="video_monitoring">Videovervåkning</string>
     <string name="notification_time">Merknadstidsintervall</string>
     <string name="notification_time_summary">Kun send merknader ved oppsatt intervall</string>
-    <string name="notification_time_dialog">Skriv inn tid (i minutter) å utsette påfølgende merknader. \"0\" for å sende fortløpende.</string>
+    <string name="notification_time_dialog">Skriv inn tid (i minutter) å utsette påfølgende merknader. "0" for å sende fortløpende.</string>
     <string name="keep_watch">Hold oppsyn!</string>
     <string name="camera_sensitivity_tip">Bruk glidebryteren for å justere sensitivitet for bevegelsesoppdagelse, med mål om 0% hvis det ikke er noen bevegelse.</string>
     <string name="disable_battery_opt_title">Skru av batterioptimiseringer</string>

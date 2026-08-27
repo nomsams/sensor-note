@@ -11,9 +11,7 @@ import android.widget.TextView;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.stfalcon.frescoimageviewer.ImageViewer;
 
-import org.apache.http.client.utils.URIBuilder;
 import org.havenapp.main.R;
 import org.havenapp.main.Utils;
 import org.havenapp.main.database.HavenEventDB;
@@ -246,12 +244,10 @@ public class EventActivity extends AppCompatActivity implements EventTriggerAdap
     public void onImageClick(@NotNull EventTrigger eventTrigger, int position) {
         int startPosition = getPositionOfImagePath(position);
 
-        ShareOverlayView overlayView = new ShareOverlayView(this);
-        ImageViewer viewer = new ImageViewer.Builder<>(this, eventTriggerImagePaths)
-                .setStartPosition(startPosition)
-                .setOverlayView(overlayView)
-                .show();
-        overlayView.setImageViewer(viewer);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(eventTriggerImagePaths.get(startPosition), "image/*");
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(intent);
     }
 
     @Override

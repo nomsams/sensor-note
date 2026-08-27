@@ -30,8 +30,11 @@ public class PPAppIntro extends AppIntro {
 
         // Instead of fragments, you can also use our default slide
         // Just set a title, description, background and image. AppIntro will do the rest.
-        addSlide(AppIntroFragment.newInstance(getString(R.string.intro1_title), getString(R.string.intro1_desc),
-                R.drawable.web_hi_res_512, getResources().getColor(R.color.colorPrimaryDark)));
+        addSlide(AppIntroFragment.newInstance(
+                getString(R.string.intro1_title),
+                getString(R.string.intro1_desc),
+                R.drawable.web_hi_res_512,
+                getResources().getColor(R.color.colorPrimaryDark)));
 
         CustomSlideBigText cs1 = CustomSlideBigText.newInstance(R.layout.custom_slide_big_text);
         cs1.setTitle(getString(R.string.intro2_title));
@@ -61,13 +64,16 @@ public class PPAppIntro extends AppIntro {
                 PreferenceManager pm = new PreferenceManager(PPAppIntro.this);
                 pm.setRemotePhoneNumber(cs4.getPhoneNumber());
                 Toast.makeText(PPAppIntro.this, R.string.phone_saved,Toast.LENGTH_SHORT).show();
-                getPager().setCurrentItem(getPager().getCurrentItem()+1);
+                getPager().setCurrentItem(getPager().getCurrentItem() + 1);
             }
         });
         addSlide(cs4);
 
-        addSlide(AppIntroFragment.newInstance(getString(R.string.intro5_title), getString(R.string.intro5_desc),
-                R.drawable.web_hi_res_512, getResources().getColor(R.color.colorPrimaryDark)));
+        addSlide(AppIntroFragment.newInstance(
+                getString(R.string.intro5_title),
+                getString(R.string.intro5_desc),
+                R.drawable.web_hi_res_512,
+                getResources().getColor(R.color.colorPrimaryDark)));
 
         setDoneText(getString(R.string.onboarding_action_end));
 
@@ -78,17 +84,14 @@ public class PPAppIntro extends AppIntro {
     }
 
     @Override
-    public void onSkipPressed(Fragment currentFragment) {
+    public void onSkipPressed(@Nullable Fragment currentFragment) {
         super.onSkipPressed(currentFragment);
-        // Do something when users tap on Skip button.
         finish();
     }
 
     @Override
-    public void onDonePressed(Fragment currentFragment) {
+    public void onDonePressed(@Nullable Fragment currentFragment) {
         super.onDonePressed(currentFragment);
-        // Do something when users tap on Done button.
-
         setResult(RESULT_OK);
         finish();
     }

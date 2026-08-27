@@ -79,27 +79,13 @@
                 android:layout_margin="0dp"
                 android:foreground="?attr/selectableItemBackground"
                 app:srcCompat="@drawable/ic_camera_front_white" />
-
-            <me.angrybyte.numberpicker.view.ActualNumberPicker
+            <com.google.android.material.slider.Slider
                 android:id="@+id/number_trigger_level"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_gravity="center_horizontal"
-                android:layout_margin="6dp"
-                android:background="#FFFFFF"
-                app:bar_color="@android:color/darker_gray"
-                app:bar_width="1dp"
-                app:draw_over_controls="true"
-                app:max_value="60000"
-                app:value="10000"
-                app:min_value="0"
-                app:show_bars="true"
-                app:show_controls="false"
-                app:show_fast_controls="false"
-                app:show_text="true"
-                app:text_color="@android:color/darker_gray"
-                app:text_size="16sp" />
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:valueFrom="0"
+                android:stepSize="1"
+                app:labelBehavior="gone" />
 
 
         </LinearLayout>

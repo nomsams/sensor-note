@@ -23,7 +23,7 @@ import org.havenapp.main.service.MonitorService;
 import java.util.Locale;
 
 public class EmfMonitor implements SensorEventListener {
-    private static final String TAG = \"EmfMonitor\";
+    private static final String TAG = "EmfMonitor";
     
     private final SensorManager sensorManager;
     private final Sensor sensor;
@@ -48,15 +48,16 @@ public class EmfMonitor implements SensorEventListener {
         sensorManager = (SensorManager) context.getSystemService(AppCompatActivity.SENSOR_SERVICE);
         
         // Try uncalibrated magnetic field first, then calibrated
-        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED);
-        if (sensor == null) {
-            sensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        Sensor candidate = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED);
+        if (candidate == null) {
+            candidate = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         }
+        sensor = candidate;
         
         if (sensor != null) {
             sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME);
         } else {
-            Log.w(TAG, \"No magnetic field sensor available\");
+            Log.w(TAG, "No magnetic field sensor available");
         }
     }
 
@@ -93,7 +94,7 @@ public class EmfMonitor implements SensorEventListener {
                 Message message = new Message();
                 message.what = EventTrigger.EMF;
                 message.getData().putString(MonitorService.KEY_PATH, 
-                        String.format(Locale.US, \"%.2f µT\", change));
+                        String.format(Locale.US, "%.2f µT", change));
                 if (serviceMessenger != null) {
                     try {
                         serviceMessenger.send(message);
@@ -101,7 +102,7 @@ public class EmfMonitor implements SensorEventListener {
                     }
                 }
                 
-                Log.i(TAG, String.format(Locale.US, \"EMF alert: %.2f µT (threshold: %.2f)\", change, threshold));
+                Log.i(TAG, String.format(Locale.US, "EMF alert: %.2f µT (threshold: %.2f)", change, threshold));
             }
         }
         
@@ -151,6 +152,6 @@ public class EmfMonitor implements SensorEventListener {
      * Get sensor type name
      */
     public String getSensorName() {
-        return sensor != null ? sensor.getName() : \"Unavailable\";
+        return sensor != null ? sensor.getName() : "Unavailable";
     }
 }

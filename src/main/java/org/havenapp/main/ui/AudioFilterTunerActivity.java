@@ -127,8 +127,8 @@ public class AudioFilterTunerActivity extends AppCompatActivity {
         
         isPreviewRunning = true;
         readProfile();
-        statusText.setText(\"Live preview running...\");
-        ((Button) findViewById(R.id.button_live_preview)).setText(\"Stop Live Preview\");
+        statusText.setText("Live preview running...");
+        ((Button) findViewById(R.id.button_live_preview)).setText("Stop Live Preview");
         
         previewThread = new Thread(() -> {
             int minBuffer = android.media.AudioRecord.getMinBufferSize(
@@ -168,7 +168,7 @@ public class AudioFilterTunerActivity extends AppCompatActivity {
                         // Update level
                         double level = AudioFilterEngine.levelDb(filtered);
                         uiHandler.post(() -> statusText.setText(
-                                String.format(\"Live level: %.1f dB\", level)));
+                                String.format("Live level: %.1f dB", level)));
                     }
                     
                     try { Thread.sleep(100); } catch (InterruptedException e) { break; }
@@ -186,8 +186,8 @@ public class AudioFilterTunerActivity extends AppCompatActivity {
             previewThread.interrupt();
             try { previewThread.join(1000); } catch (InterruptedException ignored) {}
         }
-        statusText.setText(\"Live preview stopped\");
-        ((Button) findViewById(R.id.button_live_preview)).setText(\"Start Live Preview\");
+        statusText.setText("Live preview stopped");
+        ((Button) findViewById(R.id.button_live_preview)).setText("Start Live Preview");
     }
 
     private Bitmap createSpectrogramBitmap(double[][] spectrogram) {
@@ -224,7 +224,7 @@ public class AudioFilterTunerActivity extends AppCompatActivity {
         for (int i = 0; i <= 4; i++) {
             int y = height * i / 4;
             float freq = (AudioFilterEngine.SAMPLE_RATE / 2.0f) * (1.0f - (float) y / height);
-            canvas.drawText(String.format(\"%.0f Hz\", freq), 5, y + 5, paint);
+            canvas.drawText(String.format("%.0f Hz", freq), 5, y + 5, paint);
         }
         
         return bitmap;
@@ -272,16 +272,16 @@ public class AudioFilterTunerActivity extends AppCompatActivity {
     }
 
     private void loadProfile() {
-        profile.highPassEnabled = preferences.appSharedPrefs.getBoolean(\"filter_hp_enabled\", false);
-        profile.highPassHz = parse(preferences.appSharedPrefs.getString(\"filter_hp_hz\", \"100\"), 100);
-        profile.lowPassEnabled = preferences.appSharedPrefs.getBoolean(\"filter_lp_enabled\", false);
-        profile.lowPassHz = parse(preferences.appSharedPrefs.getString(\"filter_lp_hz\", \"8000\"), 8000);
-        profile.notchEnabled = preferences.appSharedPrefs.getBoolean(\"filter_notch_enabled\", true);
-        profile.notchHz = parse(preferences.appSharedPrefs.getString(\"filter_notch_hz\", \"50\"), 50);
-        profile.bandPassEnabled = preferences.appSharedPrefs.getBoolean(\"filter_bp_enabled\", false);
-        profile.bandLowHz = parse(preferences.appSharedPrefs.getString(\"filter_bp_low\", \"300\"), 300);
-        profile.bandHighHz = parse(preferences.appSharedPrefs.getString(\"filter_bp_high\", \"3400\"), 3400);
-        profile.order = (int) parse(preferences.appSharedPrefs.getString(\"filter_order\", \"2\"), 2);
+        profile.highPassEnabled = preferences.appSharedPrefs.getBoolean("filter_hp_enabled", false);
+        profile.highPassHz = parse(preferences.appSharedPrefs.getString("filter_hp_hz", "100"), 100);
+        profile.lowPassEnabled = preferences.appSharedPrefs.getBoolean("filter_lp_enabled", false);
+        profile.lowPassHz = parse(preferences.appSharedPrefs.getString("filter_lp_hz", "8000"), 8000);
+        profile.notchEnabled = preferences.appSharedPrefs.getBoolean("filter_notch_enabled", true);
+        profile.notchHz = parse(preferences.appSharedPrefs.getString("filter_notch_hz", "50"), 50);
+        profile.bandPassEnabled = preferences.appSharedPrefs.getBoolean("filter_bp_enabled", false);
+        profile.bandLowHz = parse(preferences.appSharedPrefs.getString("filter_bp_low", "300"), 300);
+        profile.bandHighHz = parse(preferences.appSharedPrefs.getString("filter_bp_high", "3400"), 3400);
+        profile.order = (int) parse(preferences.appSharedPrefs.getString("filter_order", "2"), 2);
     }
 
     private void readProfile() {
@@ -300,16 +300,16 @@ public class AudioFilterTunerActivity extends AppCompatActivity {
     private void saveProfile() {
         readProfile();
         preferences.appSharedPrefs.edit()
-                .putBoolean(\"filter_hp_enabled\", profile.highPassEnabled)
-                .putString(\"filter_hp_hz\", String.valueOf(profile.highPassHz))
-                .putBoolean(\"filter_lp_enabled\", profile.lowPassEnabled)
-                .putString(\"filter_lp_hz\", String.valueOf(profile.lowPassHz))
-                .putBoolean(\"filter_notch_enabled\", profile.notchEnabled)
-                .putString(\"filter_notch_hz\", String.valueOf(profile.notchHz))
-                .putBoolean(\"filter_bp_enabled\", profile.bandPassEnabled)
-                .putString(\"filter_bp_low\", String.valueOf(profile.bandLowHz))
-                .putString(\"filter_bp_high\", String.valueOf(profile.bandHighHz))
-                .putString(\"filter_order\", String.valueOf(profile.order))
+                .putBoolean("filter_hp_enabled", profile.highPassEnabled)
+                .putString("filter_hp_hz", String.valueOf(profile.highPassHz))
+                .putBoolean("filter_lp_enabled", profile.lowPassEnabled)
+                .putString("filter_lp_hz", String.valueOf(profile.lowPassHz))
+                .putBoolean("filter_notch_enabled", profile.notchEnabled)
+                .putString("filter_notch_hz", String.valueOf(profile.notchHz))
+                .putBoolean("filter_bp_enabled", profile.bandPassEnabled)
+                .putString("filter_bp_low", String.valueOf(profile.bandLowHz))
+                .putString("filter_bp_high", String.valueOf(profile.bandHighHz))
+                .putString("filter_order", String.valueOf(profile.order))
                 .apply();
         Toast.makeText(this, R.string.saved, Toast.LENGTH_SHORT).show();
     }

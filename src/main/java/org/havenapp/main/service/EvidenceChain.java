@@ -7,7 +7,7 @@ import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
-final class EvidenceChain {
+public final class EvidenceChain {
     private EvidenceChain() {
     }
 
@@ -28,7 +28,7 @@ final class EvidenceChain {
         }
     }
 
-    static synchronized void append(File directory, String filename) {
+    public static synchronized void append(File directory, String filename) {
         try {
             File file = new File(directory, filename);
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

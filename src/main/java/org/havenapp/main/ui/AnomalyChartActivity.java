@@ -15,7 +15,7 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 
 import org.havenapp.main.R;
 import org.havenapp.main.anomaly.AnomalyDataStore;
@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import kotlin.Unit;
 
 public class AnomalyChartActivity extends AppCompatActivity {
     private BarChart chart;
@@ -53,8 +55,8 @@ public class AnomalyChartActivity extends AppCompatActivity {
         rangeText = findViewById(R.id.range_text);
 
         dataStore = new AnomalyDataStore(this);
-        sessionStartTime = getIntent().getLongExtra(\"session_start\", System.currentTimeMillis() - 3600_000L);
-        sessionEndTime = getIntent().getLongExtra(\"session_end\", System.currentTimeMillis());
+        sessionStartTime = getIntent().getLongExtra("session_start", System.currentTimeMillis() - 3600_000L);
+        sessionEndTime = getIntent().getLongExtra("session_end", System.currentTimeMillis());
 
         setupChart();
         setupTimeRangeSeek();
@@ -74,10 +76,9 @@ public class AnomalyChartActivity extends AppCompatActivity {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
         xAxis.setGranularity(1f);
-        xAxis.setValueFormatter(new ValueFormatter() {
-            private final SimpleDateFormat sdf = new SimpleDateFormat(\"HH:mm\", Locale.getDefault());
-            @Override
-            public String getFormattedValue(float value) {
+        xAxis.setValueFormatter(new IndexAxisValueFormatter() {
+            private final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
+            public String getFormattedValue(float value, int index) {
                 return sdf.format(new Date((long) value));
             }
         });
@@ -113,8 +114,8 @@ public class AnomalyChartActivity extends AppCompatActivity {
     }
 
     private void updateRangeText(long start, long end) {
-        SimpleDateFormat sdf = new SimpleDateFormat(\"MMM d HH:mm\", Locale.getDefault());
-        rangeText.setText(sdf.format(new Date(start)) + \" - \" + sdf.format(new Date(end)));
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM d HH:mm", Locale.getDefault());
+        rangeText.setText(sdf.format(new Date(start)) + " - " + sdf.format(new Date(end)));
     }
 
     private void loadChartData() {
@@ -134,11 +135,11 @@ public class AnomalyChartActivity extends AppCompatActivity {
                     anomalyEntries.add(new BarEntry(bucket.timestamp, bucket.anomalyCount));
                 }
                 
-                BarDataSet totalSet = new BarDataSet(totalEntries, \"Total Points\");
+                BarDataSet totalSet = new BarDataSet(totalEntries, "Total Points");
                 totalSet.setColor(Color.rgb(100, 100, 200));
                 totalSet.setValueTextSize(10f);
                 
-                BarDataSet anomalySet = new BarDataSet(anomalyEntries, \"Anomalies (Outside Zone)\");
+                BarDataSet anomalySet = new BarDataSet(anomalyEntries, "Anomalies (Outside Zone)");
                 anomalySet.setColor(Color.rgb(220, 50, 50));
                 anomalySet.setValueTextSize(10f);
                 
@@ -147,6 +148,7 @@ public class AnomalyChartActivity extends AppCompatActivity {
                 chart.setData(data);
                 chart.invalidate();
             });
+            return Unit.INSTANCE;
         });
     }
 

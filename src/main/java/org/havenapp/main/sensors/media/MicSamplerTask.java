@@ -88,6 +88,9 @@ public class MicSamplerTask extends AsyncTask<Void,Object,Void> {
 			}
 			if (isCancelled()) { volumeMeter.stop(); sampling = false; return null; }
 		}	
+		volumeMeter.stop();
+		sampling = false;
+		return null;
 	}
 	
 	public boolean isSampling() {

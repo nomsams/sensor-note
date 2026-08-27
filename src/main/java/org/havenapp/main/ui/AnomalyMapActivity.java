@@ -21,6 +21,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import kotlin.Unit;
+
 public class AnomalyMapActivity extends AppCompatActivity {
     private final Handler handler = new Handler();
     private AnomalyEllipseView ellipseView;
@@ -52,7 +54,7 @@ public class AnomalyMapActivity extends AppCompatActivity {
         dataStore = new AnomalyDataStore(this);
         
         // Get session start time from intent or use current session
-        sessionStartTime = getIntent().getLongExtra(\"session_start\", System.currentTimeMillis() - 3600_000L);
+        sessionStartTime = getIntent().getLongExtra("session_start", System.currentTimeMillis() - 3600_000L);
         
         // Load real anomaly data
         loadAnomalyData();
@@ -83,9 +85,10 @@ public class AnomalyMapActivity extends AppCompatActivity {
                     points = loadDemoPoints();
                 }
                 ellipseView.setPoints(points);
-                ellipseView.onPointSelected = this::showDetails;
+                ellipseView.onPointSelected = point -> { showDetails(point); };
                 seek(points.size() - 1);
             });
+            return Unit.INSTANCE;
         });
     }
 
@@ -114,7 +117,7 @@ public class AnomalyMapActivity extends AppCompatActivity {
         String time = SimpleDateFormat.getDateTimeInstance().format(new Date(point.timestamp));
         runOnUiThread(() -> {
             details.setText(String.format(Locale.US,
-                    \"%s\nT² %.3f\n%s\", time, point.tSquared,
+                    "%s\nT² %.3f\n%s", time, point.tSquared,
                     getString(point.anomaly ? R.string.outside_safe_zone : R.string.inside_safe_zone)));
         });
     }

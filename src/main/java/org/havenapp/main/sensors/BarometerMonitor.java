@@ -27,7 +27,7 @@ import java.util.Locale;
  */
 public class BarometerMonitor implements SensorEventListener {
 
-    private static final String TAG = \"BarometerMonitor\";
+    private static final String TAG = "BarometerMonitor";
 
     // For pressure change detection.
     private SensorManager sensorMgr;
@@ -56,7 +56,7 @@ public class BarometerMonitor implements SensorEventListener {
         sensor = sensorMgr.getDefaultSensor(Sensor.TYPE_PRESSURE);
 
         if (sensor == null) {
-            Log.i(TAG, \"Warning: no barometer sensor\");
+            Log.i(TAG, "Warning: no barometer sensor");
         } else {
             sensorMgr.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
         }
@@ -86,7 +86,7 @@ public class BarometerMonitor implements SensorEventListener {
 
                 if (last_pressure_values != null) {
                     float diffValue = Math.abs(pressure_values[0] - last_pressure_values[0]);
-                    Log.d(TAG, \"diff: \" + diffValue + \" hPa\");
+                    Log.d(TAG, "diff: " + diffValue + " hPa");
                     boolean logit = (diffValue > CHANGE_THRESHOLD);
 
                     if (logit) {
@@ -97,7 +97,7 @@ public class BarometerMonitor implements SensorEventListener {
                         Message message = new Message();
                         message.what = EventTrigger.PRESSURE;
                         message.getData().putString(MonitorService.KEY_PATH,
-                                String.format(Locale.US, \"%.3f hPa\", diffValue));
+                                String.format(Locale.US, "%.3f hPa", diffValue));
 
                         try {
                             if (serviceMessenger != null) {
@@ -107,7 +107,7 @@ public class BarometerMonitor implements SensorEventListener {
                             e.printStackTrace();
                         }
 
-                        Log.i(TAG, String.format(Locale.US, \"Barometer alert: %.3f hPa (threshold: %.3f)\", diffValue, CHANGE_THRESHOLD));
+                        Log.i(TAG, String.format(Locale.US, "Barometer alert: %.3f hPa (threshold: %.3f)", diffValue, CHANGE_THRESHOLD));
                     }
                 }
                 last_pressure_values = pressure_values.clone();
@@ -122,12 +122,12 @@ public class BarometerMonitor implements SensorEventListener {
 
     private ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
-            Log.i(TAG, \"SERVICE CONNECTED\");
+            Log.i(TAG, "SERVICE CONNECTED");
             serviceMessenger = new Messenger(service);
         }
 
         public void onServiceDisconnected(ComponentName arg0) {
-            Log.i(TAG, \"SERVICE DISCONNECTED\");
+            Log.i(TAG, "SERVICE DISCONNECTED");
             serviceMessenger = null;
         }
     };
@@ -158,6 +158,6 @@ public class BarometerMonitor implements SensorEventListener {
      * Get sensor name
      */
     public String getSensorName() {
-        return sensor != null ? sensor.getName() : \"Unavailable\";
+        return sensor != null ? sensor.getName() : "Unavailable";
     }
 }

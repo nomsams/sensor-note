@@ -15,6 +15,7 @@ import org.havenapp.main.R
 import org.havenapp.main.model.EventTrigger
 import java.util.Calendar
 import java.util.Date
+import java.util.function.BiConsumer
 import kotlin.math.max
 import kotlin.math.min
 
@@ -47,12 +48,22 @@ class TimelineView @JvmOverloads constructor(
     private var maxScrollX = 0f
     private val scroller = Scroller(context)
     private val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-        override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
+        override fun onScroll(
+            e1: MotionEvent?,
+            e2: MotionEvent,
+            distanceX: Float,
+            distanceY: Float
+        ): Boolean {
             scrollBy(distanceX)
             return true
         }
         
-        override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
+        override fun onFling(
+            e1: MotionEvent?,
+            e2: MotionEvent,
+            velocityX: Float,
+            velocityY: Float
+        ): Boolean {
             scroller.fling(
                 scrollX.toInt(), 0,
                 (-velocityX).toInt(), 0,
@@ -71,8 +82,13 @@ class TimelineView @JvmOverloads constructor(
         }
     })
 
-    var onSelectionChanged: ((Date, List<EventTrigger>) -> Unit)? = null
+    @JvmField
+    var onSelectionChanged: BiConsumer<Date, List<EventTrigger>>? = null
     var onEventClick: ((EventTrigger) -> Unit)? = null
+
+    fun scrollByFraction(fraction: Float) {
+        scrollToFraction(scrollX / maxScrollX + fraction)
+    }
 
     fun setEvents(events: List<EventTrigger>) {
         eventTriggers.clear()
@@ -213,7 +229,7 @@ class TimelineView @JvmOverloads constructor(
         val x = xFor(selectionTime, width)
         canvas.drawLine(x, density() * 28, x, viewHeight - density() * 24, selectedPaint)
         // Draw selection time label
-        val formatter = java.text.SimpleDateFormat(\"HH:mm:ss\", Locale.getDefault())
+        val formatter = java.text.SimpleDateFormat("HH:mm:ss", Locale.getDefault())
         canvas.drawText(formatter.format(selectionTime), x + density() * 4, density() * 24, labelPaint)
     }
 
@@ -221,7 +237,7 @@ class TimelineView @JvmOverloads constructor(
         val baseline = viewHeight - density() * 24
         val duration = windowEnd.time - windowStart.time
         val numLabels = 6
-        val formatter = java.text.SimpleDateFormat(\"HH:mm\", Locale.getDefault())
+        val formatter = java.text.SimpleDateFormat("HH:mm", Locale.getDefault())
         
         for (i in 0 until numLabels) {
             val fraction = i / (numLabels - 1).toFloat()
@@ -249,7 +265,7 @@ class TimelineView @JvmOverloads constructor(
             val last = eventTriggers.last().time ?: first
             val duration = last.time - first.time
             // Allow scrolling 2x the window width
-            (width * 2f).coerceAtLeast(width)
+            (width * 2f).coerceAtLeast(width.toFloat())
         } else {
             0f
         }
@@ -263,7 +279,7 @@ class TimelineView @JvmOverloads constructor(
             val time = it.time
             time != null && kotlin.math.abs(time.time - center) <= radius
         }
-        onSelectionChanged?.invoke(selectionTime, nearby)
+        onSelectionChanged?.accept(selectionTime, nearby)
     }
 
     private fun xFor(time: Date, width: Float): Float {
@@ -278,8 +294,8 @@ class TimelineView @JvmOverloads constructor(
     }
 
     private fun formatRange(): String {
-        val formatter = java.text.SimpleDateFormat(\"MMM d HH:mm\", Locale.getDefault())
-        return formatter.format(windowStart) + \" → \" + formatter.format(windowEnd)
+        val formatter = java.text.SimpleDateFormat("MMM d HH:mm", Locale.getDefault())
+        return formatter.format(windowStart) + " → " + formatter.format(windowEnd)
     }
 
     private fun density() = resources.displayMetrics.density

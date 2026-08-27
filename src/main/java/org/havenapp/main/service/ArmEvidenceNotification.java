@@ -24,8 +24,7 @@ final class ArmEvidenceNotification {
                 .setContentTitle(context.getString(R.string.secure_evidence_title))
                 .setContentText(context.getString(R.string.secure_evidence_text))
                 .setOngoing(true)
-                .setSilent(true)
-                .setLowPriority(true)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
                 .setVisibility(NotificationCompat.VISIBILITY_SECRET)
                 .build();

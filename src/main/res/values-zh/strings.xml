@@ -18,7 +18,7 @@
     <string name="title_activity_event">活动事件</string>
     <string name="action_settings">设置</string>
     <string name="intro1_title">欢迎使用 Haven</string>
-    <string name="intro1_desc">\"现在当人类命运的方舟, \n长久以来被风向阻挡, \n正以其人流而漂流, \n在高处发现安全的避难所…\"\n- 乔治·梅瑞迪斯</string>
+    <string name="intro1_desc">"现在当人类命运的方舟, \n长久以来被风向阻挡, \n正以其人流而漂流, \n在高处发现安全的避难所…"\n- 乔治·梅瑞迪斯</string>
     <string name="intro2_title">Haven 目标用户是那些想要留意家里、办公室、酒店房间或其他私人空间是否被入侵的人</string>
     <string name="intro3_desc">把一部额外的手机变成一个运动、声音、振动和光线探测器，观察不请自来的访客和不想要的入侵者</string>
     <string name="intro4_desc">立即获得入侵事件的通知，稍后远程或亲自访问日志</string>

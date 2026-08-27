@@ -7,7 +7,7 @@ class HotellingPcaModelTest {
 
     @Test
     fun testModelCreation() {
-        val featureNames = listOf(\"f1\", \"f2\")
+        val featureNames = listOf("f1", "f2")
         val means = doubleArrayOf(0.0, 0.0)
         val stdDevs = doubleArrayOf(1.0, 1.0)
         val loadings = doubleArrayOf(1.0, 0.0, 0.0, 1.0)
@@ -34,7 +34,7 @@ class HotellingPcaModelTest {
 
     @Test
     fun testInferWithinThreshold() {
-        val featureNames = listOf(\"f1\", \"f2\")
+        val featureNames = listOf("f1", "f2")
         val means = doubleArrayOf(0.0, 0.0)
         val stdDevs = doubleArrayOf(1.0, 1.0)
         val loadings = doubleArrayOf(1.0, 0.0, 0.0, 1.0)
@@ -52,13 +52,13 @@ class HotellingPcaModelTest {
         // Input within threshold
         val result = model.infer(doubleArrayOf(0.5, 0.5))
         
-        assertFalse(\"Should not be anomaly\", result.anomaly)
-        assertTrue(\"T² should be positive\", result.tSquared > 0)
+        assertFalse("Should not be anomaly", result.anomaly)
+        assertTrue("T² should be positive", result.tSquared > 0)
     }
 
     @Test
     fun testInferOutsideThreshold() {
-        val featureNames = listOf(\"f1\", \"f2\")
+        val featureNames = listOf("f1", "f2")
         val means = doubleArrayOf(0.0, 0.0)
         val stdDevs = doubleArrayOf(1.0, 1.0)
         val loadings = doubleArrayOf(1.0, 0.0, 0.0, 1.0)
@@ -76,12 +76,12 @@ class HotellingPcaModelTest {
         // Input far outside threshold
         val result = model.infer(doubleArrayOf(10.0, 10.0))
         
-        assertTrue(\"Should be anomaly\", result.anomaly)
+        assertTrue("Should be anomaly", result.anomaly)
     }
 
     @Test
     fun testInferZeroStdDev() {
-        val featureNames = listOf(\"f1\", \"f2\")
+        val featureNames = listOf("f1", "f2")
         val means = doubleArrayOf(0.0, 0.0)
         val stdDevs = doubleArrayOf(0.0, 1.0) // First feature has zero std dev
         val loadings = doubleArrayOf(1.0, 0.0, 0.0, 1.0)
@@ -103,7 +103,7 @@ class HotellingPcaModelTest {
 
     @Test
     fun testFirstTwoComponentCoordinates() {
-        val featureNames = listOf(\"f1\", \"f2\", \"f3\", \"f4\")
+        val featureNames = listOf("f1", "f2", "f3", "f4")
         val means = doubleArrayOf(0.0, 0.0, 0.0, 0.0)
         val stdDevs = doubleArrayOf(1.0, 1.0, 1.0, 1.0)
         val loadings = doubleArrayOf(
@@ -130,7 +130,7 @@ class HotellingPcaModelTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testInferWrongSize() {
-        val featureNames = listOf(\"f1\", \"f2\")
+        val featureNames = listOf("f1", "f2")
         val means = doubleArrayOf(0.0, 0.0)
         val stdDevs = doubleArrayOf(1.0, 1.0)
         val loadings = doubleArrayOf(1.0, 0.0, 0.0, 1.0)

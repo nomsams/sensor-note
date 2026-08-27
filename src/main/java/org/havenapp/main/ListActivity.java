@@ -23,10 +23,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.sqlite.SQLiteException;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -40,7 +38,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -71,6 +68,7 @@ import org.havenapp.main.ui.TimelineView;
 import org.havenapp.main.ui.PPAppIntro;
 
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -197,18 +195,6 @@ public class ListActivity extends AppCompatActivity {
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
-
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-
-            Drawable drawable = ContextCompat.getDrawable(this, R.drawable.ic_play_arrow);
-            if (drawable != null) {
-                drawable = DrawableCompat.wrap(drawable);
-                DrawableCompat.setTint(drawable, Color.WHITE);
-                DrawableCompat.setTintMode(drawable, PorterDuff.Mode.SRC_IN);
-                fab.setImageDrawable(drawable);
-            }
-        }
 
 
         fab.setOnClickListener(v -> {
@@ -356,31 +342,24 @@ public class ListActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected (MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.action_settings:
+        int itemId = item.getItemId();
+        if (itemId == R.id.action_settings) {
                 startActivity(new Intent(this,SettingsActivity.class));
-                break;
-            case R.id.action_remove_all_events:
+        } else if (itemId == R.id.action_remove_all_events) {
                 removeAllEvents();
-                break;
-            case R.id.action_about:
+        } else if (itemId == R.id.action_about) {
                 showOnboarding();
-                break;
-            case R.id.action_licenses:
+        } else if (itemId == R.id.action_licenses) {
                 showLicenses();
-                break;
-            case R.id.action_test_notification:
+        } else if (itemId == R.id.action_test_notification) {
                 testNotifications();
-                break;
-            case R.id.action_timeline:
+        } else if (itemId == R.id.action_timeline) {
                 timelineMode = true;
                 recyclerView.setVisibility(View.GONE);
                 timelineView.setVisibility(View.VISIBLE);
                 loadTimeline(Calendar.getInstance(), 7);
-                break;
-            case R.id.action_run_cleanup_job:
+        } else if (itemId == R.id.action_run_cleanup_job) {
                 runCleanUpJob();
-                break;
         }
         return true;
     }

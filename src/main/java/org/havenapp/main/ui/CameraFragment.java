@@ -64,8 +64,9 @@ public final class CameraFragment extends Fragment {
         super.onResume();
         initCamera();
 
-        cameraViewHolder.setMotionSensitivity(prefs.getCameraSensitivity());
-
+        if (cameraViewHolder != null) {
+            cameraViewHolder.setMotionSensitivity(prefs.getCameraSensitivity());
+        }
 
     }
 
@@ -114,7 +115,9 @@ public final class CameraFragment extends Fragment {
 
         }
 
-        cameraViewHolder.startCamera();
+        if (cameraViewHolder != null) {
+            cameraViewHolder.startCamera();
+        }
 
     }
 

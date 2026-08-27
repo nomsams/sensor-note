@@ -5,13 +5,17 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.3.0'
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.20'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20'
     }
 }
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+
+kapt {
+    correctErrorTypes = true
+}
 
 repositories {
     google()
@@ -27,7 +31,7 @@ android {
         applicationId 'org.havenapp.main'
         versionCode 2001
         versionName '2.0.1'
-        minSdkVersion 16
+        minSdkVersion 23
         targetSdkVersion 34
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
@@ -53,6 +57,15 @@ android {
     packagingOptions {
         resources.excludes.add('META-INF/*')
     }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            all {
+                systemProperty 'robolectric.graphicsMode', 'NATIVE'
+            }
+        }
+    }
 }
 
 dependencies {
@@ -62,6 +75,18 @@ dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.annotation:annotation:1.6.0'
     implementation 'com.google.android.material:material:1.10.0'
+    implementation 'com.wdullaer:materialdatetimepicker:4.2.3'
+    implementation 'net.the4thdimension:audio-wife:1.0.3'
+    implementation 'com.github.AppIntro:AppIntro:5.1.0'
+    implementation 'com.mikepenz:aboutlibraries:7.0.3@aar'
+    implementation 'org.nanohttpd:nanohttpd-webserver:2.3.1'
+    implementation 'com.evernote:android-job:1.4.2'
+    implementation 'com.googlecode.libphonenumber:libphonenumber:8.12.24'
+    implementation 'info.guardianproject.netcipher:netcipher:2.1.0'
+    implementation 'com.facebook.fresco:fresco:2.0.0'
+    implementation 'com.github.guardianproject:signal-cli-android:v0.6.0-android-beta-1'
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.0.3'
+    implementation 'net.sourceforge.argparse4j:argparse4j:0.8.1'
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.0'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.8.0'
@@ -76,8 +101,7 @@ dependencies {
 
     implementation 'androidx.lifecycle:lifecycle-common-java8:2.3.1'
 
-    // Camera/sensor (Central-only)
-    implementation 'com.otaliastudios:cameraview:2.6.4'
+    implementation 'com.otaliastudios:cameraview:2.7.2'
 
     // CameraX for SecureCaptureService
     def camerax_version = '1.3.4'
@@ -98,13 +122,11 @@ dependencies {
     // Notification
     implementation 'androidx.core:core:1.13.1'
 
-    // For charting (outside-zone vs time)
-    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
-
     // Testing
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:5.8.0'
     testImplementation 'org.robolectric:robolectric:4.11'
+    testImplementation 'androidx.test:core:1.5.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     androidTestImplementation 'androidx.room:room-testing:2.8.1'

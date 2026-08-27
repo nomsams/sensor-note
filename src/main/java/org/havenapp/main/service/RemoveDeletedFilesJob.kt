@@ -1,6 +1,5 @@
 package org.havenapp.main.service
 
-import android.os.Environment
 import android.util.Log
 import com.evernote.android.job.Job
 import com.evernote.android.job.JobRequest
@@ -71,8 +70,10 @@ class RemoveDeletedFilesJob: Job() {
     }
 
     private fun getAllFilesToBeDeleted(targetFileList: MutableList<File>) {
-        val storageDir = File(Environment.getExternalStorageDirectory(),
-                PreferenceManager(HavenApp.getInstance()).getBaseStoragePath())
+        val storageDir = File(
+            HavenApp.getInstance().getExternalFilesDir(null),
+            PreferenceManager(HavenApp.getInstance()).getBaseStoragePath()
+        )
 
         if (!storageDir.exists())
             return
@@ -84,8 +85,10 @@ class RemoveDeletedFilesJob: Job() {
     }
 
     private fun deleteEmptyDirs() {
-        val storageDir = File(Environment.getExternalStorageDirectory(),
-                PreferenceManager(HavenApp.getInstance()).getBaseStoragePath())
+        val storageDir = File(
+            HavenApp.getInstance().getExternalFilesDir(null),
+            PreferenceManager(HavenApp.getInstance()).getBaseStoragePath()
+        )
 
         if (!storageDir.exists())
             return

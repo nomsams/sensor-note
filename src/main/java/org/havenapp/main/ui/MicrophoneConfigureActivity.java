@@ -2,15 +2,10 @@ package org.havenapp.main.ui;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.maxproj.simplewaveform.SimpleWaveform;
 
 import org.havenapp.main.PreferenceManager;
 import org.havenapp.main.R;
@@ -23,13 +18,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import me.angrybyte.numberpicker.view.ActualNumberPicker;
 
 public class MicrophoneConfigureActivity extends AppCompatActivity implements MicSamplerTask.MicListener {
 
     private MicSamplerTask microphone;
     private TextView mTextLevel;
-    private ActualNumberPicker mNumberTrigger;
+    private com.google.android.material.slider.Slider mNumberTrigger;
     private PreferenceManager mPrefManager;
     private SimpleWaveformExtended mWaveform;
     private LinkedList<Integer> mWaveAmpList;
@@ -54,17 +48,18 @@ public class MicrophoneConfigureActivity extends AppCompatActivity implements Mi
         mWaveform = findViewById(R.id.simplewaveform);
         mWaveform.setMaxVal(100);
 
-        mNumberTrigger.setMinValue(0);
-        mNumberTrigger.setMaxValue(MAX_SLIDER_VALUE);
+        mNumberTrigger.setValueFrom(0);
+        mNumberTrigger.setValueTo(MAX_SLIDER_VALUE);
 
-        if (!mPrefManager.getMicrophoneSensitivity().equals(PreferenceManager.MEDIUM))
-            mNumberTrigger.setValue(Integer.parseInt(mPrefManager.getMicrophoneSensitivity()));
-        else
+        try {
+            mNumberTrigger.setValue(Float.parseFloat(mPrefManager.getMicrophoneSensitivity()));
+        } catch (NumberFormatException ignored) {
             mNumberTrigger.setValue(60);
+        }
 
-        mNumberTrigger.setListener((oldValue, newValue) -> {
-            mWaveform.setThreshold(newValue);
-            mPrefManager.setMicrophoneSensitivity(newValue+"");
+        mNumberTrigger.addOnChangeListener((slider, value, fromUser) -> {
+            mWaveform.setThreshold((int) value);
+            mPrefManager.setMicrophoneSensitivity(String.valueOf((int) value));
         });
 
 
@@ -80,72 +75,11 @@ public class MicrophoneConfigureActivity extends AppCompatActivity implements Mi
 
         mWaveform.setDataList(mWaveAmpList);
 
-        //define bar gap
-        mWaveform.barGap = 30;
-
-        //define x-axis direction
-        mWaveform.modeDirection = SimpleWaveform.MODE_DIRECTION_RIGHT_LEFT;
-
-        //define if draw opposite pole when show bars
-        mWaveform.modeAmp = SimpleWaveform.MODE_AMP_ABSOLUTE;
-        //define if the unit is px or percent of the view's height
-        mWaveform.modeHeight = SimpleWaveform.MODE_HEIGHT_PERCENT;
-        //define where is the x-axis in y-axis
-        mWaveform.modeZero = SimpleWaveform.MODE_ZERO_CENTER;
-        //if show bars?
-        mWaveform.showBar = true;
-
         mWaveform.setMaxVal(100);
 
-        //define how to show peaks outline
-        mWaveform.modePeak = SimpleWaveform.MODE_PEAK_ORIGIN;
-        //if show peaks outline?
-        mWaveform.showPeak = true;
-
-        //show x-axis
-        mWaveform.showXAxis = true;
-        Paint xAxisPencil = new Paint();
-        xAxisPencil.setStrokeWidth(1);
-        xAxisPencil.setColor(0x88ffffff);
-        mWaveform.xAxisPencil = xAxisPencil;
-
-        //define pencil to draw bar
-        Paint barPencilFirst = new Paint();
-        Paint barPencilSecond = new Paint();
-        Paint peakPencilFirst = new Paint();
-        Paint peakPencilSecond = new Paint();
-
-        barPencilFirst.setStrokeWidth(15);
-        barPencilFirst.setColor(getResources().getColor(R.color.colorAccent));
-        mWaveform.barPencilFirst = barPencilFirst;
-
-        barPencilFirst.setStrokeWidth(15);
-
-        barPencilSecond.setStrokeWidth(15);
-        barPencilSecond.setColor(getResources().getColor(R.color.colorPrimaryDark));
-        mWaveform.barPencilSecond = barPencilSecond;
-
-        //define pencil to draw peaks outline
-        peakPencilFirst.setStrokeWidth(5);
-        peakPencilFirst.setColor(getResources().getColor(R.color.colorAccent));
-        mWaveform.peakPencilFirst = peakPencilFirst;
-        peakPencilSecond.setStrokeWidth(5);
-        peakPencilSecond.setColor(getResources().getColor(R.color.colorPrimaryDark));
-        mWaveform.peakPencilSecond = peakPencilSecond;
-        mWaveform.firstPartNum = 0;
-
-
-        //define how to clear screen
-        mWaveform.clearScreenListener = new SimpleWaveform.ClearScreenListener() {
-            @Override
-            public void clearScreen(Canvas canvas) {
-                canvas.drawColor(Color.WHITE, PorterDuff.Mode.CLEAR);
-            }
-        };
-        //show...
-        mWaveform.refresh();
     }
-    private void startMic () {
+
+    private void startMic() {
         String permission = Manifest.permission.RECORD_AUDIO;
         int requestCode = 999;
         if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
@@ -223,14 +157,13 @@ public class MicrophoneConfigureActivity extends AppCompatActivity implements Mi
 
         if (averageDB > maxAmp) {
             maxAmp = averageDB + 5d; //add 5db buffer
-            mNumberTrigger.setValue((int) maxAmp);
-            mNumberTrigger.invalidate();
+            mNumberTrigger.setValue((float) Math.min(maxAmp, MAX_SLIDER_VALUE));
         }
 
         int perc = (int)((averageDB/120d)*100d)-10;
         mWaveAmpList.addFirst(perc);
 
-        if (mWaveAmpList.size() > mWaveform.width / mWaveform.barGap + 2) {
+            if (mWaveAmpList.size() > 100) {
             mWaveAmpList.removeLast();
         }
 

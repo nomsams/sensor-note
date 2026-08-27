@@ -9,4 +9,6 @@
 
     <!-- 25% black -->
     <color name="translucentOverlay25">#40000000</color>
+    <color name="White">#FFFFFF</color>
+    <color name="transparent">#00000000</color>
 </resources>

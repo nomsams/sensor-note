@@ -25,6 +25,8 @@ import android.os.PowerManager;
 import android.telephony.SmsManager;
 import android.text.TextUtils;
 
+import androidx.annotation.Nullable;
+
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -54,9 +56,10 @@ import org.havenapp.main.sensors.PowerConnectionReceiver;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
+import kotlin.Pair;
 import java.util.StringTokenizer;
 
-@SuppressLint(\"HandlerLeak\")
+@SuppressLint("HandlerLeak")
 public class MonitorService extends Service {
 
     /**
@@ -67,10 +70,10 @@ public class MonitorService extends Service {
     /**
      * To show a notification on service start
      */
-    private final static String channelId = \"monitor_id\";
-    private final static CharSequence channelName = \"Haven notifications\";
-    private final static String channelDescription= \"Important messages from Haven\";
-	
+    private final static String channelId = "monitor_id";
+    private final static CharSequence channelName = "Haven notifications";
+    private final static String channelDescription = "Important messages from Haven";
+
     /**
      * Object used to retrieve shared preferences
      */
@@ -88,8 +91,10 @@ public class MonitorService extends Service {
 
     private PowerConnectionReceiver mPowerReceiver = null;
     private final SensorFusion sensorFusion = new SensorFusion();
-    private final SensorFeatureWindow featureWindow = new SensorFeatureWindow(4);
-    private final AnomalyCalibrator anomalyCalibrator = new AnomalyCalibrator(featureWindow.names);
+    private final SensorFeatureWindow featureWindow =
+            new SensorFeatureWindow(4, 1500L, 8, 512);
+    private final AnomalyCalibrator anomalyCalibrator =
+            new AnomalyCalibrator(featureWindow.getNames());
     private HotellingPcaModel anomalyModel = null;
     private org.havenapp.main.anomaly.AnomalyPoint latestAnomalyPoint;
     private HotellingPcaModel.InferenceResult anomalyResult;
@@ -121,8 +126,8 @@ public class MonitorService extends Service {
 		}
 	}
 
-	public final static String KEY_PATH = \"path\";
-		
+	public final static String KEY_PATH = "path";
+
 	/**
 	 * Messenger interface used by clients to interact
 	 */
@@ -153,13 +158,15 @@ public class MonitorService extends Service {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             setupNotificationChannel();
-            startForeground(1, buildNotification());
+            startForeground(1, buildNotification().build());
+        } else {
+            showNotification();
         }
 
         // Initialize wake lock properly - only once
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
         if (wakeLock == null) {
-            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, \"Haven::MonitorService\");
+            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Haven::MonitorService");
             wakeLock.setReferenceCounted(false);
         }
 
@@ -227,9 +234,9 @@ public class MonitorService extends Service {
         filter.addAction(Intent.ACTION_POWER_CONNECTED);
         filter.addAction(Intent.ACTION_POWER_DISCONNECTED);
         registerReceiver(mPowerReceiver, filter);
-        
+
         // Start anomaly calibration
-        anomalyCalibrator.reset();
+        anomalyCalibrator.clear();
         anomalyModel = null;
         latestAnomalyPoint = null;
         anomalyResult = null;
@@ -241,27 +248,27 @@ public class MonitorService extends Service {
     private void stopSensors() {
         mIsMonitoringActive = false;
         if (mAccelManager != null) {
-            mAccelManager.stop();
+            mAccelManager.stop(this);
             mAccelManager = null;
         }
         if (mBumpMonitor != null) {
-            mBumpMonitor.stop();
+            mBumpMonitor.stop(this);
             mBumpMonitor = null;
         }
         if (mMicMonitor != null) {
-            mMicMonitor.stop();
+            mMicMonitor.stop(this);
             mMicMonitor = null;
         }
         if (mBaroMonitor != null) {
-            mBaroMonitor.stop();
+            mBaroMonitor.stop(this);
             mBaroMonitor = null;
         }
         if (mLightMonitor != null) {
-            mLightMonitor.stop();
+            mLightMonitor.stop(this);
             mLightMonitor = null;
         }
         if (mEmfMonitor != null) {
-            mEmfMonitor.stop();
+            mEmfMonitor.stop(this);
             mEmfMonitor = null;
         }
     }
@@ -278,14 +285,14 @@ public class MonitorService extends Service {
         Intent intent = new Intent(this, MonitorActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
-        
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
-            .setContentTitle(\"Haven\")
-            .setContentText(\"Monitoring active\")
-            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle("Haven")
+            .setContentText("Monitoring active")
+            .setSmallIcon(R.drawable.ic_stat_haven)
             .setContentIntent(pendingIntent)
             .setOngoing(true);
-        
+
         return builder;
     }
 
@@ -294,7 +301,7 @@ public class MonitorService extends Service {
         android.app.NotificationChannel channel = new android.app.NotificationChannel(
             channelId, channelName, android.app.NotificationManager.IMPORTANCE_LOW);
         channel.setDescription(channelDescription);
-        android.app.NotificationManager notificationManager = 
+        android.app.NotificationManager notificationManager =
             (android.app.NotificationManager) getSystemService(android.content.Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {
             notificationManager.createNotificationChannel(channel);
@@ -304,69 +311,70 @@ public class MonitorService extends Service {
     /**
      * Alert handling with anomaly detection integration
      */
-    private void alert(int type, String path) {
+    public void alert(int type, String path) {
         // Process sensor data through anomaly detection
         long timestamp = System.currentTimeMillis();
         double value = 0;
         try {
-            value = Double.parseDouble(path.split(\" \")[0]);
+            value = Double.parseDouble(path.split(" ")[0]);
         } catch (Exception ignored) {}
-        
+
         // Add to feature window
         int sensorIndex = -1;
         switch (type) {
             case EventTrigger.ACCELEROMETER: sensorIndex = 0; break;
             case EventTrigger.MICROPHONE: sensorIndex = 1; break;
-            case EventTrigger.EMF: sensorIndex = 2; break;
-            case EventTrigger.PRESSURE: sensorIndex = 3; break;
+            case EventTrigger.EMF: sensorIndex = 3; break;
+            case EventTrigger.PRESSURE: sensorIndex = 2; break;
         }
-        
+
         if (sensorIndex >= 0) {
             featureWindow.add(sensorIndex, value);
-            
-            org.havenapp.main.anomaly.SensorFeatureWindow.FeatureVector vector = 
+
+            SensorFeatureWindow.FeatureVector vector =
                 featureWindow.observe(timestamp, sensorIndex, value);
-            
+
             if (vector != null && anomalyCalibrator != null) {
-                anomalyCalibrator.add(vector.values);
-                
+                anomalyCalibrator.add(vector.getValues());
+
                 // Calibrate model if ready
                 if (anomalyCalibrator.isReady() && anomalyModel == null) {
                     anomalyModel = anomalyCalibrator.calibrate();
                 }
-                
+
                 // Run inference if model exists
                 if (anomalyModel != null) {
-                    anomalyResult = anomalyModel.infer(vector.values);
-                    
+                    anomalyResult = anomalyModel.infer(vector.getValues());
+
                     // Create anomaly point
-                    double[] coords = anomalyModel.firstTwoComponentCoordinates(vector.values);
+                    Pair<Double, Double> coords = anomalyModel.firstTwoComponentCoordinates(vector.getValues());
                     latestAnomalyPoint = new AnomalyPoint(
                         timestamp,
-                        coords[0],
-                        coords[1],
-                        anomalyResult.tSquared,
-                        anomalyResult.anomaly
+                        coords.getFirst(),
+                        coords.getSecond(),
+                        anomalyResult.getTSquared(),
+                        anomalyResult.getAnomaly()
                     );
-                    
+
                     // Save to persistent storage
                     if (anomalyDataStore != null) {
                         anomalyDataStore.savePoint(latestAnomalyPoint);
                     }
-                    
+
                     // Log to runtime log
-                    RuntimeLogStore.info(\"Anomaly\", \"T²=\" + String.format(\"%.3f\", anomalyResult.tSquared) + 
-                        \" anomaly=\" + anomalyResult.anomaly);
+                    RuntimeLogStore.INSTANCE.info("Anomaly",
+                            "T^2=" + String.format("%.3f", anomalyResult.getTSquared()) +
+                                    " anomaly=" + anomalyResult.getAnomaly());
                 }
             }
         }
-        
+
         // Original alert logic
         SensorFusion.Result fusionResult = sensorFusion.observe(type);
-        
+
         // Log event
-        RuntimeLogStore.info(\"MonitorService\", \"Alert: type=\" + type + \" path=\" + path + 
-            \" fusion_score=\" + fusionResult.score);
+        RuntimeLogStore.INSTANCE.info("MonitorService", "Alert: type=" + type + " path=" + path +
+            " fusion_score=" + fusionResult.score);
     }
 
     @Nullable
@@ -374,18 +382,22 @@ public class MonitorService extends Service {
     public IBinder onBind(Intent intent) {
         return messenger.getBinder();
     }
-    
+
     /**
      * Get anomaly data store for external access
      */
     public AnomalyDataStore getAnomalyDataStore() {
         return anomalyDataStore;
     }
-    
+
     /**
      * Get session start time
      */
     public long getSessionStartTime() {
         return sessionStartTime;
+    }
+
+    public boolean isRunning() {
+        return mIsMonitoringActive;
     }
 }

@@ -37,7 +37,8 @@ class AnomalyEllipseView @JvmOverloads constructor(
     private var selectedIndex = -1
     private var thresholdScale = 1f
     private var playbackIndex = 0
-    var onPointSelected: ((AnomalyPoint?) -> Unit)? = null
+    @JvmField
+    var onPointSelected: java.util.function.Consumer<AnomalyPoint?>? = null
 
     fun setPoints(points: List<AnomalyPoint>) {
         this.points = points.sortedBy { it.timestamp }
@@ -54,7 +55,7 @@ class AnomalyEllipseView @JvmOverloads constructor(
         if (points.isEmpty()) return
         playbackIndex = index.coerceIn(0, points.lastIndex)
         selectedIndex = playbackIndex
-        onPointSelected?.invoke(points[playbackIndex])
+            onPointSelected?.accept(points[playbackIndex])
         invalidate()
     }
 
@@ -70,7 +71,7 @@ class AnomalyEllipseView @JvmOverloads constructor(
             } ?: return false
             selectedIndex = nearest
             playbackIndex = nearest
-            onPointSelected?.invoke(points[nearest])
+            onPointSelected?.accept(points[nearest])
             invalidate()
             performClick()
             return true

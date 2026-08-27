@@ -44,6 +44,8 @@ public final class MicrophoneMonitor implements MicSamplerTask.MicListener {
 
     private Context context;
 
+    private boolean stopped = false;
+
     private ServiceConnection mConnection = new ServiceConnection() {
 
         public void onServiceConnected(ComponentName className,
@@ -100,7 +102,10 @@ public final class MicrophoneMonitor implements MicSamplerTask.MicListener {
 
     public void stop (Context context)
     {
-        context.unbindService(mConnection);
+        if (!stopped) {
+            context.unbindService(mConnection);
+            stopped = true;
+        }
         if (microphone != null)
             microphone.cancel(true);
     }
@@ -164,8 +169,9 @@ public final class MicrophoneMonitor implements MicSamplerTask.MicListener {
                     audioRecorderTask.start();
 
 
-                } catch (MicrophoneTaskFactory.RecordLimitExceeded rle) {
-                    Log.w("MicrophoneMonitor", "We are already recording!");
+                    } catch (MicrophoneTaskFactory.RecordLimitExceeded rle) {
+                        Log.w("MicrophoneMonitor", "We are already recording!");
+                    }
                 }
             }
         }

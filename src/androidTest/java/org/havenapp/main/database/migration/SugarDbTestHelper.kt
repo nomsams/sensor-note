@@ -33,7 +33,7 @@ class SugarDbTestHelper {
                                type: Int, helper: SugarDbOpenHelper) {
             val db = helper.writableDatabase
 
-            db?.execSQL("INSERT INTO EVENT_TRIGGER(M_EVENT_ID, M_PATH, M_TIME, M_TYPE) VALUES ($eventId, \"$path\", $startTime, $type)")
+            db?.execSQL("INSERT INTO EVENT_TRIGGER(M_EVENT_ID, M_PATH, M_TIME, M_TYPE) VALUES ($eventId, "$path", $startTime, $type)")
 
             db.close()
         }

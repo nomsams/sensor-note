@@ -7,7 +7,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 
-final class SensorFusion {
+public final class SensorFusion {
     private static final long WINDOW_MS = 45_000L;
     private static final int FUSION_THRESHOLD = 55;
 
@@ -23,7 +23,7 @@ final class SensorFusion {
 
     private final Deque<Observation> observations = new ArrayDeque<>();
 
-    synchronized Result observe(int alertType) {
+    public synchronized Result observe(int alertType) {
         long now = System.currentTimeMillis();
         observations.addLast(new Observation(alertType, now));
         while (!observations.isEmpty() && now - observations.peekFirst().timestamp > WINDOW_MS) {

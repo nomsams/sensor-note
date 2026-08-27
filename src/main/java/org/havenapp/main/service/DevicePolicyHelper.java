@@ -16,7 +16,7 @@ import android.widget.Toast;
 import androidx.core.content.ContextCompat;
 
 public final class DevicePolicyHelper {
-    private static final String TAG = \"DevicePolicyHelper\";
+    private static final String TAG = "DevicePolicyHelper";
 
     private DevicePolicyHelper() {
     }
@@ -35,17 +35,17 @@ public final class DevicePolicyHelper {
                 Intent intent = new Intent(Settings.ACTION_AIRPLANE_MODE_SETTINGS)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
-                toast(context, \"Airplane mode enforced\");
+                toast(context, "Airplane mode enforced");
                 return;
             } catch (Exception e) {
-                Log.w(TAG, \"Failed to set airplane mode via Settings.Global\", e);
+                Log.w(TAG, "Failed to set airplane mode via Settings.Global", e);
             }
         }
         
         // Fallback: open settings for manual confirmation
         context.startActivity(new Intent(Settings.ACTION_AIRPLANE_MODE_SETTINGS)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-        toast(context, \"Android requires manual airplane-mode confirmation\");
+        toast(context, "Android requires manual airplane-mode confirmation");
     }
 
     public static void requestBluetoothOff(Context context) {
@@ -55,20 +55,13 @@ public final class DevicePolicyHelper {
         
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         if (adapter != null && adapter.isEnabled()) {
-            if (dpm != null && dpm.isAdminActive(admin) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                // Device admin can disable Bluetooth on Android 12+
-                dpm.setBluetoothDisabled(admin, true);
-                toast(context, \"Bluetooth disabled by policy\");
-                return;
-            }
-            
             // Fallback: use legacy permission or request manually
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT)
                     == PackageManager.PERMISSION_GRANTED || Build.VERSION.SDK_INT < 31) {
                 adapter.disable();
-                toast(context, \"Bluetooth off requested\");
+                toast(context, "Bluetooth off requested");
             } else {
-                toast(context, \"Bluetooth permission required\");
+                toast(context, "Bluetooth permission required");
             }
         }
     }
@@ -79,24 +72,17 @@ public final class DevicePolicyHelper {
         ComponentName admin = new ComponentName(context, DeviceAdminReceiver.class);
         
         if (adapter != null && adapter.isEnabled()) {
-            if (dpm != null && dpm.isAdminActive(admin) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                // Device admin can disable NFC on Android 12+
-                dpm.setNfcDisabled(admin, true);
-                toast(context, \"NFC disabled by policy\");
-                return;
-            }
-            
             try {
                 context.startActivity(new Intent(Settings.ACTION_NFC_SETTINGS)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
             } catch (Exception ignored) {
                 try {
                     ComponentName panel = ComponentName.unflattenFromString(
-                            \"com.android.systemui/.SysUIWideNfcEnablePanel\");
-                    context.startActivity(new Intent(\"android.settings.NFC_SETTINGS\")
+                            "com.android.systemui/.SysUIWideNfcEnablePanel");
+                    context.startActivity(new Intent("android.settings.NFC_SETTINGS")
                             .setComponent(panel).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                 } catch (Exception ignored2) {
-                    toast(context, \"Open Quick Settings to turn NFC off\");
+                    toast(context, "Open Quick Settings to turn NFC off");
                 }
             }
         }
@@ -110,7 +96,7 @@ public final class DevicePolicyHelper {
         if (dpm != null && dpm.isAdminActive(admin) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             // Device admin can restrict USB data on Android 12+
             // Note: USB data restriction is more complex and may require specific OEM support
-            toast(context, \"USB data restriction requested\");
+            toast(context, "USB data restriction requested");
         }
         
         try {
@@ -120,7 +106,7 @@ public final class DevicePolicyHelper {
             context.startActivity(new Intent(Settings.ACTION_DEVICE_INFO_SETTINGS)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         }
-        toast(context, \"Select USB mode: No data transfer / charging only\");
+        toast(context, "Select USB mode: No data transfer / charging only");
     }
 
     /**
@@ -143,7 +129,7 @@ public final class DevicePolicyHelper {
             Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
             intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, admin);
             intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, 
-                \"Haven needs device admin permission to enforce airplane mode, Bluetooth, NFC, and USB restrictions.\");
+                "Haven needs device admin permission to enforce airplane mode, Bluetooth, NFC, and USB restrictions.");
             context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         }
     }

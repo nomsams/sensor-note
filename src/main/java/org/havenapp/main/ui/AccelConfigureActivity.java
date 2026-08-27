@@ -1,9 +1,5 @@
 package org.havenapp.main.ui;
 
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -13,7 +9,6 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.maxproj.simplewaveform.SimpleWaveform;
 
 import org.havenapp.main.PreferenceManager;
 import org.havenapp.main.R;
@@ -22,12 +17,11 @@ import java.util.LinkedList;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import me.angrybyte.numberpicker.view.ActualNumberPicker;
 
 public class AccelConfigureActivity extends AppCompatActivity implements SensorEventListener {
 
     private TextView mTextLevel;
-    private ActualNumberPicker mNumberTrigger;
+    private com.google.android.material.slider.Slider mNumberTrigger;
     private PreferenceManager mPrefManager;
     private SimpleWaveformExtended mWaveform;
     private LinkedList<Integer> mWaveAmpList;
@@ -83,17 +77,18 @@ public class AccelConfigureActivity extends AppCompatActivity implements SensorE
         mWaveform = findViewById(R.id.simplewaveform);
         mWaveform.setMaxVal(MAX_SLIDER_VALUE);
 
-        mNumberTrigger.setMinValue(0);
-        mNumberTrigger.setMaxValue(MAX_SLIDER_VALUE);
+        mNumberTrigger.setValueFrom(0);
+        mNumberTrigger.setValueTo(MAX_SLIDER_VALUE);
 
-        if (!mPrefManager.getAccelerometerSensitivity().equals(PreferenceManager.HIGH))
-            mNumberTrigger.setValue(Integer.parseInt(mPrefManager.getAccelerometerSensitivity()));
-        else
+        try {
+            mNumberTrigger.setValue(Float.parseFloat(mPrefManager.getAccelerometerSensitivity()));
+        } catch (NumberFormatException ignored) {
             mNumberTrigger.setValue(50);
+        }
 
-        mNumberTrigger.setListener((oldValue, newValue) -> {
-            mWaveform.setThreshold(newValue);
-            mPrefManager.setAccelerometerSensitivity(newValue+"");
+        mNumberTrigger.addOnChangeListener((slider, value, fromUser) -> {
+            mWaveform.setThreshold((int) value);
+            mPrefManager.setAccelerometerSensitivity(String.valueOf((int) value));
         });
 
 
@@ -111,68 +106,8 @@ public class AccelConfigureActivity extends AppCompatActivity implements SensorE
 
         mWaveform.setDataList(mWaveAmpList);
 
-        //define bar gap
-        mWaveform.barGap = 30;
+        mWaveform.setMaxVal(MAX_SLIDER_VALUE);
 
-        //define x-axis direction
-        mWaveform.modeDirection = SimpleWaveform.MODE_DIRECTION_RIGHT_LEFT;
-
-        //define if draw opposite pole when show bars
-        mWaveform.modeAmp = SimpleWaveform.MODE_AMP_ABSOLUTE;
-        //define if the unit is px or percent of the view's height
-        mWaveform.modeHeight = SimpleWaveform.MODE_HEIGHT_PERCENT;
-        //define where is the x-axis in y-axis
-        mWaveform.modeZero = SimpleWaveform.MODE_ZERO_CENTER;
-        //if show bars?
-        mWaveform.showBar = true;
-
-        //define how to show peaks outline
-        mWaveform.modePeak = SimpleWaveform.MODE_PEAK_ORIGIN;
-        //if show peaks outline?
-        mWaveform.showPeak = true;
-
-        //show x-axis
-        mWaveform.showXAxis = true;
-        Paint xAxisPencil = new Paint();
-        xAxisPencil.setStrokeWidth(1);
-        xAxisPencil.setColor(0x88ffffff);
-        mWaveform.xAxisPencil = xAxisPencil;
-
-        //define pencil to draw bar
-        Paint barPencilFirst = new Paint();
-        Paint barPencilSecond = new Paint();
-        Paint peakPencilFirst = new Paint();
-        Paint peakPencilSecond = new Paint();
-
-        barPencilFirst.setStrokeWidth(15);
-        barPencilFirst.setColor(getResources().getColor(R.color.colorAccent));
-        mWaveform.barPencilFirst = barPencilFirst;
-
-        barPencilFirst.setStrokeWidth(15);
-
-        barPencilSecond.setStrokeWidth(15);
-        barPencilSecond.setColor(getResources().getColor(R.color.colorPrimaryDark));
-        mWaveform.barPencilSecond = barPencilSecond;
-
-        //define pencil to draw peaks outline
-        peakPencilFirst.setStrokeWidth(5);
-        peakPencilFirst.setColor(getResources().getColor(R.color.colorAccent));
-        mWaveform.peakPencilFirst = peakPencilFirst;
-        peakPencilSecond.setStrokeWidth(5);
-        peakPencilSecond.setColor(getResources().getColor(R.color.colorPrimaryDark));
-        mWaveform.peakPencilSecond = peakPencilSecond;
-        mWaveform.firstPartNum = 0;
-
-
-        //define how to clear screen
-        mWaveform.clearScreenListener = new SimpleWaveform.ClearScreenListener() {
-            @Override
-            public void clearScreen(Canvas canvas) {
-                canvas.drawColor(Color.WHITE, PorterDuff.Mode.CLEAR);
-            }
-        };
-
-        //show...
         mWaveform.refresh();
     }
     private void startAccel () {
@@ -232,7 +167,7 @@ public class AccelConfigureActivity extends AppCompatActivity implements SensorE
 
                     mWaveAmpList.addFirst((int)mAccel);
 
-                    if (mWaveAmpList.size() > mWaveform.width / mWaveform.barGap + 2) {
+                    if (mWaveAmpList.size() > 100) {
                         mWaveAmpList.removeLast();
                     }
 

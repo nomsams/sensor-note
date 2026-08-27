@@ -54,6 +54,9 @@ public class PowerConnectionReceiver extends BroadcastReceiver {
     private String getBatteryStatus(Context context) {
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = context.registerReceiver(null, ifilter);
+        if (batteryStatus == null) {
+            return context.getString(R.string.power_disconnected);
+        }
         String battStatus;
         int chargePlug = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
         boolean usbCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_USB;

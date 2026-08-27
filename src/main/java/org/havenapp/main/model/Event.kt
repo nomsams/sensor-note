@@ -2,7 +2,7 @@ package org.havenapp.main.model
 
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.MediatorLiveData
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
@@ -22,10 +22,15 @@ class Event {
         set(value) {
             if (value == null) return
             field = value
-            eventTriggerCountLD = Transformations.map(HavenApp.getDataBaseInstance().getEventTriggerDAO()
-                    .getEventTriggerListCountAsync(field)) {
-                Pair(field!!, it)
-            }
+            val transformedLiveData = MediatorLiveData<Pair<Long, Int>>()
+            HavenApp.getDataBaseInstance().getEventTriggerDAO()
+                .getEventTriggerListCountAsync(field)
+                .let { source ->
+                    transformedLiveData.addSource(source) { count ->
+                        transformedLiveData.value = field?.let { id -> Pair(id, count) }
+                    }
+                }
+            eventTriggerCountLD = transformedLiveData
         }
 
     @ColumnInfo(name = "M_START_TIME")

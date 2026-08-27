@@ -1,94 +1,45 @@
 package org.havenapp.main.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
-
-import com.halilibo.bettervideoplayer.BetterVideoCallback;
-import com.halilibo.bettervideoplayer.BetterVideoPlayer;
-
-import org.havenapp.main.R;
+import android.widget.MediaController;
+import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-public class VideoPlayerActivity extends AppCompatActivity implements BetterVideoCallback {
+import org.havenapp.main.R;
 
-    private BetterVideoPlayer player;
+public class VideoPlayerActivity extends AppCompatActivity {
+
+    private VideoView player;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_player);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
-// Grabs a reference to the player view
-        player = (BetterVideoPlayer) findViewById(R.id.player);
-
-        // Sets the callback to this Activity, since it inherits EasyVideoCallback
-        player.setCallback(this);
-
-        player.setAutoPlay(true);
-
-        // Sets the source to the HTTP URL held in the TEST_URL variable.
-        // To play files, you can use Uri.fromFile(new File("..."))
-        player.setSource(getIntent().getData());
-
-
-
-        // From here, the player view will show a progress indicator until the player is prepared.
-        // Once it's prepared, the progress indicator goes away and the controls become enabled for the user to
-
+        player = findViewById(R.id.player);
+        MediaController controls = new MediaController(this);
+        controls.setAnchorView(player);
+        player.setMediaController(controls);
+        player.setOnErrorListener((mediaPlayer, what, extra) -> true);
+        Intent intent = getIntent();
+        if (intent != null && intent.getData() != null) {
+            player.setVideoURI(intent.getData());
+        }
     }
 
     @Override
-    public void onPause() {
+    protected void onResume() {
+        super.onResume();
+        player.start();
+    }
+
+    @Override
+    protected void onPause() {
         super.onPause();
-        // Make sure the player stops playing if the user presses the home button.
         player.pause();
     }
-
-    // Methods for the implemented EasyVideoCallback
-
-    @Override
-    public void onStarted(BetterVideoPlayer player) {
-        //Log.i(TAG, "Started");
-
-        player.showControls();
-    }
-
-    @Override
-    public void onPaused(BetterVideoPlayer player) {
-        //Log.i(TAG, "Paused");
-    }
-
-    @Override
-    public void onPreparing(BetterVideoPlayer player) {
-        //Log.i(TAG, "Preparing");
-    }
-
-    @Override
-    public void onPrepared(BetterVideoPlayer player) {
-        //Log.i(TAG, "Prepared");
-    }
-
-    @Override
-    public void onBuffering(int percent) {
-        //Log.i(TAG, "Buffering " + percent);
-    }
-
-    @Override
-    public void onError(BetterVideoPlayer player, Exception e) {
-        //Log.i(TAG, "Error " +e.getMessage());
-    }
-
-    @Override
-    public void onCompletion(BetterVideoPlayer player) {
-        //Log.i(TAG, "Completed");
-    }
-
-    @Override
-    public void onToggleControls(BetterVideoPlayer player, boolean isShowing) {
-        //Log.i(TAG, "Controls toggled " + isShowing);
-    }
-
 }

@@ -16,7 +16,7 @@
     <string name="title_activity_event">EventActivity</string>
     <string name="action_settings">Podešavanja</string>
     <string name="intro1_title">Dobrodošli u Haven</string>
-    <string name="intro1_desc">\"Now when the ark of human fate,\nLong baffled by the wayward wind,\nIs drifting with its peopled freight,\nSAFE HAVEN on the height find…\"\n-Džordž Meredit</string>
+    <string name="intro1_desc">"Now when the ark of human fate,\nLong baffled by the wayward wind,\nIs drifting with its peopled freight,\nSAFE HAVEN on the height find…"\n-Džordž Meredit</string>
     <string name="intro2_title">Haven je za ljude koji žele da vode računa o provalama u njihove domove, kancelarije, hotelske sobe ili druge privatne prostore.</string>
     <string name="intro3_desc">Pretvorite dodatni telefon u detektor pokreta, zvuka, vibracija i svetlosti, posmatrajući neočekivane goste i provalnike.</string>
     <string name="intro4_desc">Primajte obaveštenja o provalama istog momenta i pristupite zapisima sa drugog uređaja ili lično onom koji snima.</string>

@@ -12,7 +12,6 @@ package org.havenapp.main.sensors.media;
 
 import android.content.Context;
 import android.media.MediaRecorder;
-import android.os.Environment;
 import android.util.Log;
 
 import org.havenapp.main.PreferenceManager;
@@ -71,7 +70,9 @@ public class AudioRecorderTask extends Thread {
 		this.prefs = new PreferenceManager(context);
 		Log.i("AudioRecorderTask", "Created recorder");
 
-        File fileFolder = new File(Environment.getExternalStorageDirectory().getPath(),prefs.getDefaultMediaStoragePath());
+        Context applicationContext = context.getApplicationContext();
+        File fileFolder = new File(applicationContext.getExternalFilesDir(null),
+                prefs.getDefaultMediaStoragePath());
         fileFolder.mkdirs();
         audioPath = new File(fileFolder,new SimpleDateFormat(Utils.DATE_TIME_PATTERN,
 				Locale.getDefault()).format(new Date()) + ".m4a");

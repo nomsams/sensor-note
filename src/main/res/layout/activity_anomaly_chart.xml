@@ -1,35 +1,35 @@
-<?xml version=\"1.0\" encoding=\"utf-8\"?>
-<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"
-    xmlns:app=\"http://schemas.android.com/apk/res-auto\"
-    android:layout_width=\"match_parent\"
-    android:layout_height=\"match_parent\"
-    android:orientation=\"vertical\"
-    android:padding=\"12dp\">
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="12dp">
 
     <androidx.appcompat.widget.Toolbar
-        android:id=\"@+id/toolbar\"
-        android:layout_width=\"match_parent\"
-        android:layout_height=\"?attr/actionBarSize\"
-        app:title=\"@string/anomaly_chart_title\" />
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:title="@string/anomaly_chart_title" />
 
     <TextView
-        android:id=\"@+id/range_text\"
-        android:layout_width=\"match_parent\"
-        android:layout_height=\"wrap_content\"
-        android:padding=\"8dp\"
-        android:textSize=\"14sp\" />
+        android:id="@+id/range_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:textSize="14sp" />
 
     <SeekBar
-        android:id=\"@+id/time_range_seek\"
-        android:layout_width=\"match_parent\"
-        android:layout_height=\"wrap_content\"
-        android:max=\"100\"
-        android:progress=\"100\" />
+        android:id="@+id/time_range_seek"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:progress="100" />
 
     <com.github.mikephil.charting.charts.BarChart
-        android:id=\"@+id/anomaly_chart\"
-        android:layout_width=\"match_parent\"
-        android:layout_height=\"0dp\"
-        android:layout_weight=\"1\" />
+        android:id="@+id/anomaly_chart"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
 </LinearLayout>

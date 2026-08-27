@@ -59,6 +59,9 @@ proguard/
 # Android Studio captures folder
 captures/
 
+# Local validation toolchain
+.build-tools/
+
 # Intellij
 *.iml
 .idea/workspace.xml

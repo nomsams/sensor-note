@@ -18,10 +18,10 @@ import org.havenapp.main.PreferenceManager;
 import org.havenapp.main.R;
 
 public class ArmControlReceiver extends BroadcastReceiver {
-    public static final String ACTION_DISARM = \"org.havenapp.main.ACTION_DISARM\";
-    public static final String ACTION_ARM = \"org.havenapp.main.ACTION_ARM\";
-    public static final String EXTRA_CODE = \"code\";
-    private static final String CHANNEL_ID = \"haven_arm_control\";
+    public static final String ACTION_DISARM = "org.havenapp.main.ACTION_DISARM";
+    public static final String ACTION_ARM = "org.havenapp.main.ACTION_ARM";
+    public static final String EXTRA_CODE = "code";
+    private static final String CHANNEL_ID = "haven_arm_control";
     private static final int NOTIFICATION_ID = 2001;
 
     @Override
@@ -31,7 +31,7 @@ public class ArmControlReceiver extends BroadcastReceiver {
 
         if (ACTION_DISARM.equals(action)) {
             // Null-safe RemoteInput handling
-            String provided = \"\";
+            String provided = "";
             if (intent.getExtras() != null) {
                 CharSequence remoteInput = RemoteInput.getResultsFromIntent(intent).getCharSequence(EXTRA_CODE);
                 if (remoteInput != null) {
@@ -51,7 +51,7 @@ public class ArmControlReceiver extends BroadcastReceiver {
 
             // Verify disarm code (constant-time comparison with hash)
             // Check if disarm code is configured by attempting verification with empty string
-            boolean hasDisarmCode = !preferences.verifyDisarmCode(\"__HAS_CODE_CHECK__\");
+            boolean hasDisarmCode = !preferences.verifyDisarmCode("__HAS_CODE_CHECK__");
             if (!preferences.verifyDisarmCode(provided)) {
                 SecureCaptureService.startEvidenceCapture(context);
                 updateNotification(context, false,
@@ -65,7 +65,7 @@ public class ArmControlReceiver extends BroadcastReceiver {
             SecureCaptureService.startEvidenceCapture(context);
             schedule(context, armPendingIntent(context), 15_000L);
             updateNotification(context, false,
-                    context.getString(R.string.disarm_sequence_running).replace(\"Disarmed.\", \"Disarmed!\"));
+                    context.getString(R.string.disarm_sequence_running).replace("Disarmed.", "Disarmed!"));
         } else if (ACTION_ARM.equals(action)) {
             preferences.setPendingArmRequest(false);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -127,7 +127,7 @@ public class ArmControlReceiver extends BroadcastReceiver {
     private static void updateNotification(Context context, boolean armed, String message) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_stat_haven)
-                .setContentTitle(\"Haven \" + (armed ? \"ARMED\" : \"DISARMED\"))
+                .setContentTitle("Haven " + (armed ? "ARMED" : "DISARMED"))
                 .setContentText(message)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
@@ -138,8 +138,8 @@ public class ArmControlReceiver extends BroadcastReceiver {
         if (new PreferenceManager(context).getSilentOperations()) {
             builder.setSilent(true).setPublicVersion(new NotificationCompat.Builder(context, CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_stat_haven)
-                    .setContentTitle(\"Sync\")
-                    .setContentText(\"Completed\")
+                    .setContentTitle("Sync")
+                    .setContentText("Completed")
                     .build());
         }
 
@@ -170,7 +170,7 @@ public class ArmControlReceiver extends BroadcastReceiver {
     private static void createChannel(Context context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
         NotificationChannel channel = new NotificationChannel(
-                CHANNEL_ID, \"Arm control\", NotificationManager.IMPORTANCE_HIGH);
+                CHANNEL_ID, "Arm control", NotificationManager.IMPORTANCE_HIGH);
         channel.setSound(null, null);
         channel.enableVibration(false);
         channel.enableLights(false);

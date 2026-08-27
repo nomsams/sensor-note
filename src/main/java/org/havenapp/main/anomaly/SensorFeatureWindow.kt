@@ -3,20 +3,15 @@ package org.havenapp.main.anomaly
 import java.util.ArrayDeque
 import kotlin.math.abs
 
-data class FeatureVector(
-    val timestamp: Long,
-    val values: DoubleArray
-)
-
 class SensorFeatureWindow(
     private val featureCount: Int,
-    private val windowMillis: Long = 1_500L,
-    private val minimumSamples: Int = 8,
-    private val maximumSamples: Int = 512
+    val windowMillis: Long = 1_500L,
+    val minimumSamples: Int = 8,
+    val maximumSamples: Int = 512
 ) {
     data class Sample(val timestamp: Long, val values: DoubleArray)
 
-    private class ChannelWindow {
+    private inner class ChannelWindow {
         private val samples = ArrayDeque<Sample>()
 
         fun add(sample: Sample, cutoff: Long) {
@@ -38,8 +33,13 @@ class SensorFeatureWindow(
 
     private val channels = List(featureCount) { ChannelWindow() }
     val names: List<String> = List(featureCount) { channel ->
-        listOf(\"mean\", \"std\", \"max\", \"min\").map { suffix -> \"sensor\_\\" }
+        listOf("mean", "std", "max", "min").map { suffix -> "sensor_${channel}_$suffix" }
     }.flatten()
+
+    data class FeatureVector(
+        val timestamp: Long,
+        val values: DoubleArray
+    )
 
     @Synchronized
     fun observe(timestamp: Long, sensorIndex: Int, value: Double): FeatureVector? {

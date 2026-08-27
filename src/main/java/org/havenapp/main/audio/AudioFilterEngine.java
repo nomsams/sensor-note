@@ -10,7 +10,7 @@ import android.util.Log;
 import java.util.Arrays;
 
 public final class AudioFilterEngine {
-    private static final String TAG = \"AudioFilterEngine\";
+    private static final String TAG = "AudioFilterEngine";
     public static final int SAMPLE_RATE = 44100;
 
     public static class FilterProfile {
@@ -134,7 +134,7 @@ public final class AudioFilterEngine {
             recorder.release();
             return Arrays.copyOf(samples, read);
         }
-        throw new IllegalStateException(\"AudioRecord unavailable\");
+        throw new IllegalStateException("AudioRecord unavailable");
     }
 
     /**

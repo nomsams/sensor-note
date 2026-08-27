@@ -14,10 +14,10 @@
     <string name="title_activity_event">Дійна подія</string>
     <string name="action_settings">Налаштування</string>
     <string name="intro1_title">Ласкаво просимо до Haven - вашого Прихистку</string>
-    <string name="intro1_desc">\"Тепер, коли ковчег людської долі,
+    <string name="intro1_desc">"Тепер, коли ковчег людської долі,
 \nДовго спантеличений вітром,
 \nПливе зі своїм прокладеним вантажем,
-\nБЕЗПЕЧНИЙ ПРИХИСТОК (Haven) на висоті знайти... \"
+\nБЕЗПЕЧНИЙ ПРИХИСТОК (Haven) на висоті знайти... "
 \n-Джордж Мередіт</string>
     <string name="intro2_title">Haven призначений для людей, які хочуть стежити за вторгненням у свій будинок, офіс, готельний номер чи інший особистий простір</string>
     <string name="intro3_desc">Перетворіть додатковий телефон у відстежувач руху, звуку, дрижання та світла, спостерігаючи за несподіваними гостями та небажаними зловмисниками</string>
@@ -111,7 +111,7 @@
     <string name="camera_sensitivity">Чутливість камери</string>
     <string name="notification_time">Проміжок часу сповіщення</string>
     <string name="notification_time_summary">Надсилайте сповіщення лише в налаштований проміжок</string>
-    <string name="notification_time_dialog">Введіть найкоротший проміжок повторних повідомлень (у хвилинах). Використовуйте \"0\", щоб надіслати їх усі.</string>
+    <string name="notification_time_dialog">Введіть найкоротший проміжок повторних повідомлень (у хвилинах). Використовуйте "0", щоб надіслати їх усі.</string>
     <string name="minutes">хв.</string>
     <string name="keep_watch">Будьте уважні!</string>
     <string name="camera_sensitivity_tip">Використовуйте повзунок для регулювання чутливості до виявлення руху з метою 0%, коли руху немає.</string>

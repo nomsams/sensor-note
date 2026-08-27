@@ -16,11 +16,16 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
-import androidx.camera.core.VideoCapture;
+import androidx.camera.video.FileOutputOptions;
+import androidx.camera.video.Recorder;
+import androidx.camera.video.Recording;
+import androidx.camera.video.VideoCapture;
+import androidx.camera.video.VideoRecordEvent;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.LifecycleEventObserver;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -31,18 +36,18 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-import org.havenapp.main.EvidenceChain;
 import org.havenapp.main.PreferenceManager;
 import org.havenapp.main.Utils;
 
 public class SecureCaptureService extends Service implements LifecycleOwner {
-    private static final String TAG = \"SecureCaptureService\";
+    private static final String TAG = "SecureCaptureService";
     private static final int NOTIFICATION_ID = 2006;
     private static final long CAPTURE_DURATION_MS = 15000L;
     
     private ProcessCameraProvider cameraProvider;
     private ImageCapture imageCapture;
-    private VideoCapture videoCapture;
+    private VideoCapture<Recorder> videoCapture;
+    private Recording recording;
     private Camera camera;
     private File evidenceDir;
     private HandlerThread handlerThread;
@@ -51,7 +56,7 @@ public class SecureCaptureService extends Service implements LifecycleOwner {
     private boolean isCapturing = false;
     private String photoPath;
     private String videoPath;
-    private final Lifecycle lifecycle = new Lifecycle();
+    private final LifecycleRegistry lifecycle = new LifecycleRegistry(this);
     
     public static void startEvidenceCapture(Context context) {
         Intent intent = new Intent(context, SecureCaptureService.class);
@@ -65,7 +70,7 @@ public class SecureCaptureService extends Service implements LifecycleOwner {
     @Override
     public void onCreate() {
         super.onCreate();
-        handlerThread = new HandlerThread(\"SecureCaptureThread\");
+        handlerThread = new HandlerThread("SecureCaptureThread");
         handlerThread.start();
         backgroundHandler = new Handler(handlerThread.getLooper());
         mainHandler = new Handler(getMainLooper());
@@ -73,7 +78,7 @@ public class SecureCaptureService extends Service implements LifecycleOwner {
         PreferenceManager preferences = new PreferenceManager(this);
         evidenceDir = new File(
                 new File(getExternalFilesDir(null), preferences.getDefaultMediaStoragePath()),
-                \".secure-evidence\");
+                ".secure-evidence");
         if (!evidenceDir.exists()) {
             evidenceDir.mkdirs();
         }
@@ -93,7 +98,7 @@ public class SecureCaptureService extends Service implements LifecycleOwner {
                 bindCameraUseCases();
                 startCapture();
             } catch (ExecutionException | InterruptedException e) {
-                Log.e(TAG, \"CameraX initialization failed\", e);
+                Log.e(TAG, "CameraX initialization failed", e);
                 stopSelf();
             }
         }, ContextCompat.getMainExecutor(this));
@@ -113,10 +118,10 @@ public class SecureCaptureService extends Service implements LifecycleOwner {
                 .setTargetRotation(android.view.Surface.ROTATION_0)
                 .build();
 
-        videoCapture = new VideoCapture.Builder()
-                .setVideoFrameRate(30)
-                .setTargetRotation(android.view.Surface.ROTATION_0)
+        Recorder recorder = new Recorder.Builder()
+                .setTargetVideoEncodingBitRate(2_000_000)
                 .build();
+        videoCapture = VideoCapture.withOutput(recorder);
 
         try {
             cameraProvider.unbindAll();
@@ -127,7 +132,7 @@ public class SecureCaptureService extends Service implements LifecycleOwner {
                     imageCapture, 
                     videoCapture);
         } catch (Exception e) {
-            Log.e(TAG, \"CameraX bindToLifecycle failed\", e);
+            Log.e(TAG, "CameraX bindToLifecycle failed", e);
         }
     }
 
@@ -138,42 +143,58 @@ public class SecureCaptureService extends Service implements LifecycleOwner {
         isCapturing = true;
         
         // Capture photo
-        String photoName = stamp(\".evidence.jpg\");
+        String photoName = stamp(".evidence.jpg");
         photoPath = new File(evidenceDir, photoName).getAbsolutePath();
         EvidenceChain.append(evidenceDir, photoName);
         
         imageCapture.takePicture(
-                new File(photoPath),
+                new ImageCapture.OutputFileOptions.Builder(new File(photoPath)).build(),
                 ContextCompat.getMainExecutor(this),
                 new ImageCapture.OnImageSavedCallback() {
                     @Override
                     public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-                        Log.i(TAG, \"Photo saved: \" + photoPath);
+                        Log.i(TAG, "Photo saved: " + photoPath);
                     }
                     @Override
                     public void onError(@NonNull ImageCaptureException exception) {
-                        Log.e(TAG, \"Photo capture failed\", exception);
+                        Log.e(TAG, "Photo capture failed", exception);
                     }
                 });
 
         // Capture video
-        String videoName = stamp(\".evidence.mp4\");
+        String videoName = stamp(".evidence.mp4");
         videoPath = new File(evidenceDir, videoName).getAbsolutePath();
         EvidenceChain.append(evidenceDir, videoName);
         
+        recording = videoCapture.getOutput().prepareRecording(
+                this,
+                new FileOutputOptions.Builder(new File(videoPath)).build())
+                .start(ContextCompat.getMainExecutor(this), event -> {
+                    if (event instanceof VideoRecordEvent.Finalize) {
+                        VideoRecordEvent.Finalize finalize = (VideoRecordEvent.Finalize) event;
+                        if (!finalize.hasError()) {
+                            Log.i(TAG, "Video saved: " + videoPath);
+                        } else {
+                            Log.e(TAG, "Video capture failed: " + finalize.getError());
+                        }
+                    }
+                });
+
+        /*
         videoCapture.startRecording(
                 new VideoCapture.OutputFileOptions.Builder(new File(videoPath)).build(),
                 ContextCompat.getMainExecutor(this),
                 new VideoCapture.OnVideoSavedCallback() {
                     @Override
                     public void onVideoSaved(@NonNull VideoCapture.OutputFileResults outputFileResults) {
-                        Log.i(TAG, \"Video saved: \" + videoPath);
+                        Log.i(TAG, "Video saved: " + videoPath);
                     }
                     @Override
                     public void onError(int videoCaptureError, @NonNull String message, @Nullable Throwable cause) {
-                        Log.e(TAG, \"Video capture failed: \" + message, cause);
+                        Log.e(TAG, "Video capture failed: " + message, cause);
                     }
                 });
+        */
 
         // Stop capture after duration
         mainHandler.postDelayed(() -> {
@@ -184,7 +205,9 @@ public class SecureCaptureService extends Service implements LifecycleOwner {
 
     private void stopCapture() {
         if (videoCapture != null) {
-            videoCapture.stopRecording();
+            if (recording != null) {
+                recording.stop();
+            }
         }
         isCapturing = false;
     }
@@ -224,7 +247,7 @@ public class SecureCaptureService extends Service implements LifecycleOwner {
 
     @NonNull
     @Override
-    public Lifecycle getLifecycle() {
+    public LifecycleRegistry getLifecycle() {
         return lifecycle;
     }
 }

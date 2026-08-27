@@ -16,7 +16,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -329,7 +328,7 @@ public class CameraViewHolder {
 	        return false;
         String ts1 = new SimpleDateFormat(Utils.DATE_TIME_PATTERN,
                 Locale.getDefault()).format(new Date());
-        File fileStoragePath = new File(Environment.getExternalStorageDirectory(),prefs.getDefaultMediaStoragePath());
+        File fileStoragePath = new File(context.getExternalFilesDir(null), prefs.getDefaultMediaStoragePath());
         fileStoragePath.mkdirs();
 
         videoFile =  new File(fileStoragePath, ts1 + ".mp4");

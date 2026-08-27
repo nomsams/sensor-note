@@ -3,6 +3,7 @@ package org.havenapp.main.ui.viewholder
 import android.content.Context
 import android.net.Uri
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -13,7 +14,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
-import com.github.derlio.waveform.SimpleWaveformView
 import nl.changer.audiowife.AudioWife
 import org.havenapp.main.R
 import org.havenapp.main.model.EventTrigger
@@ -38,7 +38,7 @@ class AudioVH(
     private val indexNumber = itemView.findViewById<TextView>(R.id.index_number)
     private val audioTitle = itemView.findViewById<TextView>(R.id.title)
     private val audioDesc = itemView.findViewById<TextView>(R.id.item_audio_desc)
-    private val waveFormView = itemView.findViewById<SimpleWaveformView>(R.id.item_sound)
+    private val waveFormView = itemView.findViewById<View>(R.id.item_sound)
     private val spectrogramView = itemView.findViewById<SpectrogramView>(R.id.item_spectrogram)
     private val playerContainer = itemView.findViewById<LinearLayout>(R.id.item_player_container)
     private var loadJob: Job? = null

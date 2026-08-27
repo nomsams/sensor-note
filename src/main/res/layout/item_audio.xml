@@ -24,12 +24,10 @@
             android:layout_height="144dp">
 
 
-            <com.github.derlio.waveform.SimpleWaveformView
+            <android.view.View
                 android:id="@+id/item_sound"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:indicatorColor="@color/colorPrimaryDark"
-                app:waveformColor="@color/colorAccent" />
+                android:layout_height="match_parent" />
 
             <org.havenapp.main.ui.viewholder.SpectrogramView
                 android:id="@+id/item_spectrogram"

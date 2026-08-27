@@ -11,7 +11,7 @@ import java.util.concurrent.Executors
 class AnomalyDataStore(context: Context) {
     private val dbHelper = DatabaseHelper(context)
     private val executor = Executors.newSingleThreadExecutor()
-    private val LOG_TAG = \"AnomalyDataStore\"
+    private val LOG_TAG = "AnomalyDataStore"
 
     init {
         // Clean up old data periodically
@@ -26,17 +26,17 @@ class AnomalyDataStore(context: Context) {
             val db = dbHelper.writableDatabase
             try {
                 db.execSQL(
-                    \"INSERT INTO anomaly_points (timestamp, x, y, t_squared, anomaly) VALUES (?, ?, ?, ?, ?)\",
+                    "INSERT INTO anomaly_points (timestamp, x, y, t_squared, anomaly) VALUES (?, ?, ?, ?, ?)",
                     arrayOf(
                         point.timestamp.toString(),
                         point.x.toString(),
                         point.y.toString(),
                         point.tSquared.toString(),
-                        if (point.anomaly) \"1\" else \"0\"
+                        if (point.anomaly) "1" else "0"
                     )
                 )
             } catch (e: Exception) {
-                Log.e(LOG_TAG, \"Failed to save anomaly point\", e)
+                Log.e(LOG_TAG, "Failed to save anomaly point", e)
             }
         }
     }
@@ -51,19 +51,19 @@ class AnomalyDataStore(context: Context) {
             try {
                 for (point in points) {
                     db.execSQL(
-                        \"INSERT INTO anomaly_points (timestamp, x, y, t_squared, anomaly) VALUES (?, ?, ?, ?, ?)\",
+                        "INSERT INTO anomaly_points (timestamp, x, y, t_squared, anomaly) VALUES (?, ?, ?, ?, ?)",
                         arrayOf(
                             point.timestamp.toString(),
                             point.x.toString(),
                             point.y.toString(),
                             point.tSquared.toString(),
-                            if (point.anomaly) \"1\" else \"0\"
+                            if (point.anomaly) "1" else "0"
                         )
                     )
                 }
                 db.setTransactionSuccessful()
             } catch (e: Exception) {
-                Log.e(LOG_TAG, \"Failed to save anomaly points\", e)
+                Log.e(LOG_TAG, "Failed to save anomaly points", e)
             } finally {
                 db.endTransaction()
             }
@@ -78,7 +78,7 @@ class AnomalyDataStore(context: Context) {
             val db = dbHelper.readableDatabase
             val points = mutableListOf<AnomalyPoint>()
             val cursor = db.rawQuery(
-                \"SELECT timestamp, x, y, t_squared, anomaly FROM anomaly_points WHERE timestamp >= ? AND timestamp <= ? ORDER BY timestamp ASC\",
+                "SELECT timestamp, x, y, t_squared, anomaly FROM anomaly_points WHERE timestamp >= ? AND timestamp <= ? ORDER BY timestamp ASC",
                 arrayOf(startTime.toString(), endTime.toString())
             )
             try {
@@ -107,7 +107,7 @@ class AnomalyDataStore(context: Context) {
             val db = dbHelper.readableDatabase
             val points = mutableListOf<AnomalyPoint>()
             val cursor = db.rawQuery(
-                \"SELECT timestamp, x, y, t_squared, anomaly FROM anomaly_points ORDER BY timestamp ASC\",
+                "SELECT timestamp, x, y, t_squared, anomaly FROM anomaly_points ORDER BY timestamp ASC",
                 null
             )
             try {
@@ -141,8 +141,8 @@ class AnomalyDataStore(context: Context) {
                 val bucketEnd = startTime + (i + 1) * bucketSize
                 
                 val cursor = db.rawQuery(
-                    \"SELECT COUNT(*), SUM(CASE WHEN anomaly = 1 THEN 1 ELSE 0 END), MAX(t_squared) \" +
-                    \"FROM anomaly_points WHERE timestamp >= ? AND timestamp < ?\",
+                    "SELECT COUNT(*), SUM(CASE WHEN anomaly = 1 THEN 1 ELSE 0 END), MAX(t_squared) " +
+                    "FROM anomaly_points WHERE timestamp >= ? AND timestamp < ?",
                     arrayOf(bucketStart.toString(), bucketEnd.toString())
                 )
                 try {
@@ -174,9 +174,9 @@ class AnomalyDataStore(context: Context) {
         val cutoff = System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000L
         val db = dbHelper.writableDatabase
         try {
-            db.execSQL(\"DELETE FROM anomaly_points WHERE timestamp < ?\", arrayOf(cutoff.toString()))
+            db.execSQL("DELETE FROM anomaly_points WHERE timestamp < ?", arrayOf(cutoff.toString()))
         } catch (e: Exception) {
-            Log.e(LOG_TAG, \"Failed to cleanup old data\", e)
+            Log.e(LOG_TAG, "Failed to cleanup old data", e)
         }
     }
 
@@ -189,10 +189,10 @@ class AnomalyDataStore(context: Context) {
     }
 
     private class DatabaseHelper(context: Context) : SQLiteOpenHelper(
-        context, \"anomaly_data.db\", null, 1
+        context, "anomaly_data.db", null, 1
     ) {
         override fun onCreate(db: SQLiteDatabase) {
-            db.execSQL(\"\"\"
+            db.execSQL("""
                 CREATE TABLE anomaly_points (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     timestamp INTEGER NOT NULL,
@@ -201,9 +201,9 @@ class AnomalyDataStore(context: Context) {
                     t_squared REAL NOT NULL,
                     anomaly INTEGER NOT NULL
                 )
-                \"\"\".trimIndent())
-            db.execSQL(\"CREATE INDEX idx_anomaly_timestamp ON anomaly_points(timestamp)\")
-            db.execSQL(\"CREATE INDEX idx_anomaly_anomaly ON anomaly_points(anomaly)\")
+                """.trimIndent())
+            db.execSQL("CREATE INDEX idx_anomaly_timestamp ON anomaly_points(timestamp)")
+            db.execSQL("CREATE INDEX idx_anomaly_anomaly ON anomaly_points(anomaly)")
         }
 
         override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {

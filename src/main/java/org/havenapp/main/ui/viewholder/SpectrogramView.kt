@@ -34,12 +34,13 @@ class SpectrogramView @JvmOverloads constructor(
         val samples = spectrogram ?: return
         if (samples.isEmpty()) return
 
-        val columnWidth = width.toFloat() / columns
+        val columnCount = samples.size / frequencyBins
+        val columnWidth = width.toFloat() / columnCount
         val rowHeight = height.toFloat() / frequencyBins
 
-        for (column in 0 until columns) {
+        for (column in 0 until columnCount) {
             for (bin in 0 until frequencyBins) {
-                val magnitude = spectrogram[column * frequencyBins + bin]
+                val magnitude = samples[column * frequencyBins + bin]
                 if (magnitude > 0.04f) {
                     paint.alpha = 48 + (magnitude * 207).toInt()
                     paint.color = when {

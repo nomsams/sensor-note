@@ -1,4 +1,8 @@
 package org.havenapp.main.sensors;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -10,6 +14,8 @@ import androidx.test.core.app.ApplicationProvider;
 
 import static org.mockito.Mockito.*;
 
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = 33, application = android.app.Application.class)
 public class MicrophoneMonitorTest {
 
     @Test
@@ -17,7 +23,7 @@ public class MicrophoneMonitorTest {
         Context context = ApplicationProvider.getApplicationContext();
         MicrophoneMonitor monitor = new MicrophoneMonitor(context);
         
-        Assert.assertNotNull(\"Monitor should be created\", monitor);
+        Assert.assertNotNull("Monitor should be created", monitor);
     }
 
     @Test
@@ -26,21 +32,21 @@ public class MicrophoneMonitorTest {
         org.havenapp.main.PreferenceManager prefs = new org.havenapp.main.PreferenceManager(context);
         
         // Test High sensitivity
-        prefs.setMicrophoneSensitivity(\"High\");
+        prefs.setMicrophoneSensitivity("High");
         MicrophoneMonitor monitor = new MicrophoneMonitor(context);
-        double threshold = getPrivateFieldDouble(monitor, \"mNoiseThreshold\");
+        double threshold = getPrivateFieldDouble(monitor, "mNoiseThreshold");
         Assert.assertEquals(40.0, threshold, 0.001);
         
         // Test Medium sensitivity
-        prefs.setMicrophoneSensitivity(\"Medium\");
+        prefs.setMicrophoneSensitivity("Medium");
         monitor = new MicrophoneMonitor(context);
-        threshold = getPrivateFieldDouble(monitor, \"mNoiseThreshold\");
+        threshold = getPrivateFieldDouble(monitor, "mNoiseThreshold");
         Assert.assertEquals(60.0, threshold, 0.001);
         
         // Test custom numeric sensitivity
-        prefs.setMicrophoneSensitivity(\"55\");
+        prefs.setMicrophoneSensitivity("55");
         monitor = new MicrophoneMonitor(context);
-        threshold = getPrivateFieldDouble(monitor, \"mNoiseThreshold\");
+        threshold = getPrivateFieldDouble(monitor, "mNoiseThreshold");
         Assert.assertEquals(55.0, threshold, 0.001);
     }
 

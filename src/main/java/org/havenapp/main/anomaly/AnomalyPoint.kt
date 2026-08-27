@@ -1,16 +1,16 @@
 package org.havenapp.main.anomaly
 
 data class AnomalyPoint(
-    val timestamp: Long,
-    val x: Double,
-    val y: Double,
-    val tSquared: Double,
-    val anomaly: Boolean
+    @JvmField val timestamp: Long,
+    @JvmField val x: Double,
+    @JvmField val y: Double,
+    @JvmField val tSquared: Double,
+    @JvmField val anomaly: Boolean
 )
 
 data class AnomalySummaryBucket(
-    val timestamp: Long,
-    val totalPoints: Int,
-    val anomalyCount: Int,
-    val maximumDistance: Double
+    @JvmField val timestamp: Long,
+    @JvmField val totalPoints: Int,
+    @JvmField val anomalyCount: Int,
+    @JvmField val maximumDistance: Double
 )

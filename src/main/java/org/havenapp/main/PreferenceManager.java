@@ -23,6 +23,8 @@ import android.content.SharedPreferences.Editor;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+
+import org.havenapp.main.service.OperatingMode;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -38,79 +40,79 @@ public class PreferenceManager {
     public SharedPreferences appSharedPrefs;
     private Editor prefsEditor;
 
-    public static final String LOW = \"Low\";
-    public static final String MEDIUM = \"Medium\";
-    public static final String HIGH = \"High\";
-    public static final String OFF = \"Off\";
+    public static final String LOW = "Low";
+    public static final String MEDIUM = "Medium";
+    public static final String HIGH = "High";
+    public static final String OFF = "Off";
 
-    public static final String FRONT = \"Front\";
-    public static final String BACK = \"Back\";
-    public static final String NONE = \"None\";
+    public static final String FRONT = "Front";
+    public static final String BACK = "Back";
+    public static final String NONE = "None";
 
-    private static final String APP_SHARED_PREFS=\"org.havenapp.main\";
-    private static final String ACCELEROMETER_ACTIVE=\"accelerometer_active\";
-    private static final String ACCELEROMETER_SENSITIVITY=\"accelerometer_sensibility\";
-    private static final String CAMERA_ACTIVE=\"camera_active\";
-    public static final String CAMERA=\"camera\";
-    public static final String CAMERA_SENSITIVITY=\"camera_sensitivity\";
-    public static final String CONFIG_MOVEMENT =\"config_movement\";
-    public static final String HEARTBEAT_MONITOR_ACTIVE=\"heartbeat_monitor_active\";
-    public static final String HEARTBEAT_MONITOR_DELAY=\"heartbeat_monitor_delay\";
-    public static final String HEARTBEAT_MONITOR_MESSAGE=\"heartbeat_monitor_message\";
-    public static final String MONITOR_SERVICE_ACTIVE=\"monitor_service_active\";
-    private static final String FLASH_ACTIVE=\"flash_active\";
-    private static final String MICROPHONE_ACTIVE=\"microphone_active\";
-    private static final String MICROPHONE_SENSITIVITY=\"microphone_sensitivity\";
-    public static final String CONFIG_SOUND = \"config_sound\";
-    public static final String CONFIG_TIME_DELAY = \"config_delay_time\";
-    public static final String REGISTER_SIGNAL = \"register_signal\";
-    public static final String VERIFY_SIGNAL = \"verify_signal\";
-    public static final String VOICE_VERIFY_SIGNAL = \"voice_verify_signal\";
-    public static final String RESET_SIGNAL_CONFIG = \"reset_signal_config\";
-    private static final String UNLOCK_CODE=\"unlock_code\";
+    private static final String APP_SHARED_PREFS="org.havenapp.main";
+    private static final String ACCELEROMETER_ACTIVE="accelerometer_active";
+    private static final String ACCELEROMETER_SENSITIVITY="accelerometer_sensibility";
+    private static final String CAMERA_ACTIVE="camera_active";
+    public static final String CAMERA="camera";
+    public static final String CAMERA_SENSITIVITY="camera_sensitivity";
+    public static final String CONFIG_MOVEMENT ="config_movement";
+    public static final String HEARTBEAT_MONITOR_ACTIVE="heartbeat_monitor_active";
+    public static final String HEARTBEAT_MONITOR_DELAY="heartbeat_monitor_delay";
+    public static final String HEARTBEAT_MONITOR_MESSAGE="heartbeat_monitor_message";
+    public static final String MONITOR_SERVICE_ACTIVE="monitor_service_active";
+    private static final String FLASH_ACTIVE="flash_active";
+    private static final String MICROPHONE_ACTIVE="microphone_active";
+    private static final String MICROPHONE_SENSITIVITY="microphone_sensitivity";
+    public static final String CONFIG_SOUND = "config_sound";
+    public static final String CONFIG_TIME_DELAY = "config_delay_time";
+    public static final String REGISTER_SIGNAL = "register_signal";
+    public static final String VERIFY_SIGNAL = "verify_signal";
+    public static final String VOICE_VERIFY_SIGNAL = "voice_verify_signal";
+    public static final String RESET_SIGNAL_CONFIG = "reset_signal_config";
+    private static final String UNLOCK_CODE="unlock_code";
 
-    private static final String ACCESS_TOKEN=\"access_token\";
-    private static final String DELEGATED_ACCESS_TOKEN=\"deferred_access_token\";
+    private static final String ACCESS_TOKEN="access_token";
+    private static final String DELEGATED_ACCESS_TOKEN="deferred_access_token";
 
-    private static final String PHONE_ID=\"phone_id\";
-    private static final String TIMER_DELAY=\"timer_delay\";
-    private static final String VIDEO_LENGTH=\"video_length\";
-    public static final String CONFIG_VIDEO_LENGTH =\"config_video_length\";
+    private static final String PHONE_ID="phone_id";
+    private static final String TIMER_DELAY="timer_delay";
+    private static final String VIDEO_LENGTH="video_length";
+    public static final String CONFIG_VIDEO_LENGTH ="config_video_length";
+
+    public static final String REMOTE_ACCESS_ACTIVE = "remote_access_active";
+    public static final String REMOTE_ACCESS_ONION = "remote_access_onion";
+    public static final String REMOTE_ACCESS_CRED = "remote_access_credential";
+
+    private static final String SIGNAL_USERNAME = "signal_username";
+    private static final String SIGNAL_VERIFIED_USERNAME = "signal_verified_username";
+
+    private static final String FIRST_LAUNCH = "first_launch";
+
+    public static final String NOTIFICATION_TIME = "notification_time";
+
+    public static final String DISABLE_BATTERY_OPT = "config_battery_optimizations";
+
+    private static final String CURRENT_EVENT_START_TIME = "current_event_start_time";
+
+    public static final String CONFIG_BASE_STORAGE = "config_base_storage";
+    private static final String CONFIG_BASE_STORAGE_DEFAULT = "/haven";
     private static final String DIR_PATH = CONFIG_BASE_STORAGE_DEFAULT;
 
-    public static final String REMOTE_ACCESS_ACTIVE = \"remote_access_active\";
-    public static final String REMOTE_ACCESS_ONION = \"remote_access_onion\";
-    public static final String REMOTE_ACCESS_CRED = \"remote_access_credential\";
-
-    private static final String SIGNAL_USERNAME = \"signal_username\";
-    private static final String SIGNAL_VERIFIED_USERNAME = \"signal_verified_username\";
-
-    private static final String FIRST_LAUNCH = \"first_launch\";
-
-    public static final String NOTIFICATION_TIME = \"notification_time\";
-
-    public static final String DISABLE_BATTERY_OPT = \"config_battery_optimizations\";
-
-    private static final String CURRENT_EVENT_START_TIME = \"current_event_start_time\";
-
-    public static final String CONFIG_BASE_STORAGE = \"config_base_storage\";
-    private static final String CONFIG_BASE_STORAGE_DEFAULT = \"/haven\";
-
-    public static final String TELEGRAM_ENABLED = \"telegram_enabled\";
-    public static final String TELEGRAM_BOT_TOKEN = \"telegram_bot_token\";
-    public static final String TELEGRAM_CHAT_ID = \"telegram_chat_id\";
-    public static final String AUDIO_SPECTROGRAM_ENABLED = \"audio_spectrogram_enabled\";
-    private static final String EMF_SENSITIVITY = \"emf_sensitivity\";
-    private static final String PRESSURE_SENSITIVITY = \"pressure_sensitivity\";
-    private static final String DISARM_CODE = \"disarm_code\";
-    private static final String PANIC_CODE = \"panic_code\";
-    private static final String PENDING_ARM_REQUEST = \"pending_arm_request\";
-    public static final String OPERATING_MODE = \"operating_mode\";
-    public static final String SENSOR_ENABLED_PREFIX = \"sensor_enabled_\";
+    public static final String TELEGRAM_ENABLED = "telegram_enabled";
+    public static final String TELEGRAM_BOT_TOKEN = "telegram_bot_token";
+    public static final String TELEGRAM_CHAT_ID = "telegram_chat_id";
+    public static final String AUDIO_SPECTROGRAM_ENABLED = "audio_spectrogram_enabled";
+    private static final String EMF_SENSITIVITY = "emf_sensitivity";
+    private static final String PRESSURE_SENSITIVITY = "pressure_sensitivity";
+    private static final String DISARM_CODE = "disarm_code";
+    private static final String PANIC_CODE = "panic_code";
+    private static final String PENDING_ARM_REQUEST = "pending_arm_request";
+    public static final String OPERATING_MODE = "operating_mode";
+    public static final String SENSOR_ENABLED_PREFIX = "sensor_enabled_";
 
     // keeping the key value same for data migration.
-    static final String REMOTE_PHONE_NUMBER = \"sms_number\";
-    static final String REMOTE_NOTIFICATION_ACTIVE = \"remote_notification_active\";
+    static final String REMOTE_PHONE_NUMBER = "sms_number";
+    static final String REMOTE_NOTIFICATION_ACTIVE = "remote_notification_active";
 
     private Context context;
 
@@ -178,7 +180,7 @@ public class PreferenceManager {
     }
 
     public String getRemoteAccessOnion () {
-        return appSharedPrefs.getString(REMOTE_ACCESS_ONION,\"\");
+        return appSharedPrefs.getString(REMOTE_ACCESS_ONION,"");
     }
 
     public void setRemoteAccessCredential (String remoteCredential) {
@@ -231,7 +233,7 @@ public class PreferenceManager {
     }
 
     public String getTelegramBotToken() {
-        return CryptoUtils.getEncryptedString(context, TELEGRAM_BOT_TOKEN, \"\");
+        return CryptoUtils.getEncryptedString(context, TELEGRAM_BOT_TOKEN, "");
     }
 
     public void setTelegramChatId(String chatId) {
@@ -239,7 +241,7 @@ public class PreferenceManager {
     }
 
     public String getTelegramChatId() {
-        return CryptoUtils.getEncryptedString(context, TELEGRAM_CHAT_ID, \"\");
+        return CryptoUtils.getEncryptedString(context, TELEGRAM_CHAT_ID, "");
     }
 
     public boolean isTelegramConfigured() {
@@ -261,7 +263,7 @@ public class PreferenceManager {
     }
 
     public String getEmfSensitivity() {
-        return appSharedPrefs.getString(EMF_SENSITIVITY, \"25\");
+        return appSharedPrefs.getString(EMF_SENSITIVITY, "25");
     }
 
     public void setPressureSensitivity(String sensitivity) {
@@ -271,7 +273,7 @@ public class PreferenceManager {
 
     public float getPressureSensitivity() {
         try {
-            return Float.parseFloat(appSharedPrefs.getString(PRESSURE_SENSITIVITY, \"0.20\"));
+            return Float.parseFloat(appSharedPrefs.getString(PRESSURE_SENSITIVITY, "0.20"));
         } catch (Exception ignored) {
             return 0.20f;
         }
@@ -280,19 +282,19 @@ public class PreferenceManager {
     public void setDisarmCode(String code) {
         // Store hash for verification, not plaintext
         String hash = CryptoUtils.hashString(code);
-        CryptoUtils.putEncryptedString(context, DISARM_CODE + \"_hash\", hash);
+        CryptoUtils.putEncryptedString(context, DISARM_CODE + "_hash", hash);
     }
 
     public String getDisarmCode() {
         // Return empty - we only store hash for verification
-        return \"\";
+        return "";
     }
 
     /**
      * Check if a disarm code has been configured
      */
     public boolean hasDisarmCode() {
-        String storedHash = CryptoUtils.getEncryptedString(context, DISARM_CODE + \"_hash\", \"\");
+        String storedHash = CryptoUtils.getEncryptedString(context, DISARM_CODE + "_hash", "");
         return !storedHash.isEmpty();
     }
 
@@ -300,7 +302,7 @@ public class PreferenceManager {
      * Verify a disarm code against stored hash
      */
     public boolean verifyDisarmCode(String code) {
-        String storedHash = CryptoUtils.getEncryptedString(context, DISARM_CODE + \"_hash\", \"\");
+        String storedHash = CryptoUtils.getEncryptedString(context, DISARM_CODE + "_hash", "");
         if (storedHash.isEmpty()) return false;
         String inputHash = CryptoUtils.hashString(code);
         return CryptoUtils.constantTimeEquals(storedHash, inputHash);
@@ -309,24 +311,24 @@ public class PreferenceManager {
     public void setPanicCode(String code) {
         // Store hash for verification, not plaintext
         String hash = CryptoUtils.hashString(code);
-        CryptoUtils.putEncryptedString(context, PANIC_CODE + \"_hash\", hash);
+        CryptoUtils.putEncryptedString(context, PANIC_CODE + "_hash", hash);
     }
 
     public String getPanicCode() {
         // Return empty - we only store hash for verification
-        return \"\";
+        return "";
     }
 
     /**
      * Check if a panic code has been configured
      */
     public boolean hasPanicCode() {
-        String storedHash = CryptoUtils.getEncryptedString(context, PANIC_CODE + \"_hash\", \"\");
+        String storedHash = CryptoUtils.getEncryptedString(context, PANIC_CODE + "_hash", "");
         return !storedHash.isEmpty();
     }
 
     public boolean verifyPanicCode(String code) {
-        String storedHash = CryptoUtils.getEncryptedString(context, PANIC_CODE + \"_hash\", \"\");
+        String storedHash = CryptoUtils.getEncryptedString(context, PANIC_CODE + "_hash", "");
         if (storedHash.isEmpty()) return false;
         String inputHash = CryptoUtils.hashString(code);
         return CryptoUtils.constantTimeEquals(storedHash, inputHash);
@@ -351,12 +353,12 @@ public class PreferenceManager {
     }
 
     public void setSilentOperations(boolean silent) {
-        prefsEditor.putBoolean(\"silent_operations\", silent);
+        prefsEditor.putBoolean("silent_operations", silent);
         prefsEditor.apply();
     }
 
     public boolean getSilentOperations() {
-        return appSharedPrefs.getBoolean(\"silent_operations\", true);
+        return appSharedPrefs.getBoolean("silent_operations", true);
     }
 
     public void setOperatingMode(String mode) {
@@ -439,7 +441,7 @@ public class PreferenceManager {
 
     @NonNull
     public String getRemotePhoneNumber() {
-        return Objects.requireNonNull(appSharedPrefs.getString(REMOTE_PHONE_NUMBER, \"\"));
+        return Objects.requireNonNull(appSharedPrefs.getString(REMOTE_PHONE_NUMBER, ""));
     }
 
     public int getTimerDelay () {
@@ -548,6 +550,6 @@ public class PreferenceManager {
     }
 
     private String getCurrentSession() {
-        return appSharedPrefs.getString(CURRENT_EVENT_START_TIME, \"unknown_session\");
+        return appSharedPrefs.getString(CURRENT_EVENT_START_TIME, "unknown_session");
     }
 }

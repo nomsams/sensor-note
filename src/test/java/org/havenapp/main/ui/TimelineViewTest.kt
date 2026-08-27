@@ -41,20 +41,20 @@ class TimelineViewTest {
         t1.type = EventTrigger.ACCELEROMETER
         t1.time = Date(1000)
         t1.eventId = 100
-        t1.path = \"test\"
+        t1.path = "test"
         
         val t2 = EventTrigger()
         t2.id = 1
         t2.type = EventTrigger.ACCELEROMETER
         t2.time = Date(1000)
         t2.eventId = 100
-        t2.path = \"test\"
+        t2.path = "test"
         
-        assertTrue(\"Equal EventTriggers should be equal\", t1.equals(t2))
+        assertTrue("Equal EventTriggers should be equal", t1.equals(t2))
         assertEquals(t1.hashCode(), t2.hashCode())
         
         val t3 = EventTrigger()
         t3.id = 2
-        assertFalse(\"Different ID should not be equal\", t1.equals(t3))
+        assertFalse("Different ID should not be equal", t1.equals(t3))
     }
 }

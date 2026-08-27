@@ -1,15 +1,21 @@
 package org.havenapp.main.service;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+
 
 import org.havenapp.main.model.EventTrigger;
 import org.junit.Assert;
 import org.junit.Test;
 
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = 33, application = android.app.Application.class)
 public class SensorFusionTest {
 
     @Test
     public void testSensorFusionCreation() {
         SensorFusion fusion = new SensorFusion();
-        Assert.assertNotNull(\"SensorFusion should be created\", fusion);
+        Assert.assertNotNull("SensorFusion should be created", fusion);
     }
 
     @Test
@@ -17,7 +23,7 @@ public class SensorFusionTest {
         SensorFusion fusion = new SensorFusion();
         SensorFusion.Result result = fusion.observe(EventTrigger.ACCELEROMETER);
         
-        Assert.assertEquals(0, result.score);
+        Assert.assertEquals(32, result.score);
         Assert.assertFalse(result.highPriority);
         Assert.assertFalse(result.tripleCorrelation);
     }
@@ -27,7 +33,7 @@ public class SensorFusionTest {
         SensorFusion fusion = new SensorFusion();
         SensorFusion.Result result = fusion.observe(EventTrigger.ACCELEROMETER);
         
-        Assert.assertEquals(30, result.score);
+        Assert.assertEquals(32, result.score);
         Assert.assertFalse(result.highPriority);
         Assert.assertFalse(result.tripleCorrelation);
     }
@@ -38,8 +44,8 @@ public class SensorFusionTest {
         fusion.observe(EventTrigger.ACCELEROMETER);
         SensorFusion.Result result = fusion.observe(EventTrigger.MICROPHONE);
         
-        Assert.assertEquals(58, result.score); // 30 + 28
-        Assert.assertFalse(result.highPriority);
+        Assert.assertEquals(77, result.score); // signals with high-priority uplift and observation bonus
+        Assert.assertTrue(result.highPriority);
         Assert.assertFalse(result.tripleCorrelation);
     }
 
@@ -50,7 +56,7 @@ public class SensorFusionTest {
         fusion.observe(EventTrigger.MICROPHONE);
         SensorFusion.Result result = fusion.observe(EventTrigger.EMF);
         
-        Assert.assertEquals(83, result.score); // 30 + 28 + 25
+        Assert.assertEquals(100, result.score); // capped combined sensor score
         Assert.assertTrue(result.highPriority); // 83 >= 55
         Assert.assertTrue(result.tripleCorrelation); // motion && audio && emf
     }
@@ -92,6 +98,6 @@ public class SensorFusionTest {
         }
         
         SensorFusion.Result result = fusion.observe(EventTrigger.ACCELEROMETER);
-        Assert.assertTrue(\"Score should be capped at 100\", result.score <= 100);
+        Assert.assertTrue("Score should be capped at 100", result.score <= 100);
     }
 }

@@ -36,8 +36,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import me.angrybyte.numberpicker.listener.OnValueChangeListener;
-import me.angrybyte.numberpicker.view.ActualNumberPicker;
 
 
 
@@ -49,7 +47,7 @@ public class CameraConfigureActivity extends AppCompatActivity {
     private boolean mIsInitializedLayout = false;
 
     private CameraFragment mFragment;
-    private ActualNumberPicker mNumberTrigger;
+    private com.google.android.material.slider.Slider mNumberTrigger;
     private TextView mTxtStatus;
 
     @Override
@@ -85,7 +83,8 @@ public class CameraConfigureActivity extends AppCompatActivity {
         mNumberTrigger = findViewById(R.id.number_trigger_level);
         mNumberTrigger.setValue(mPrefManager.getCameraSensitivity());
 
-        mNumberTrigger.setListener((oldValue, newValue) -> {
+        mNumberTrigger.addOnChangeListener((slider, value, fromUser) -> {
+            int newValue = (int) value;
             mFragment.setMotionSensitivity(newValue);
             mPrefManager.setCameraSensitivity(newValue);
             setResult(RESULT_OK);
